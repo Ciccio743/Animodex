@@ -72,6 +72,10 @@ Aucune n'est nécessaire. Voir [.env.example](.env.example) pour les phases suiv
 | Identification d'espèces par image | 4 | **oui** selon le fournisseur (via backend uniquement) | à choisir |
 | Supabase | 6 | URL + clé anon publique ; clé service côté serveur seulement | à faire |
 
+## Applications Android et iOS
+
+Projets natifs Capacitor dans `android/` et `ios/`. Procédure de publication sur les stores : [docs/STORE_RELEASE.md](docs/STORE_RELEASE.md).
+
 ## Documentation
 
 - [Plan d'implémentation et état des phases](docs/IMPLEMENTATION_PLAN.md)

@@ -8,6 +8,7 @@ Application web (PWA) de découverte naturaliste : on observe de vrais animaux, 
 
 - `index.html` : l'application complète en un seul fichier, publiée par GitHub Pages (branche `main`, dossier racine). Ne pas le modifier à la main : il est généré.
 - `app/` : le code source (React + TypeScript + Vite), la documentation (`app/docs/`) et les tests.
+- `app/android/` et `app/ios/` : les applications natives (Capacitor) pour Google Play et l'App Store. Guide : `app/docs/STORE_RELEASE.md`.
 
 ## Mettre à jour l'application
 

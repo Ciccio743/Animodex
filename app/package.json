@@ -8,12 +8,18 @@
     "build": "tsc -b && vite build",
     "build:single": "tsc -b && vite build --mode single",
     "preview": "vite preview",
+    "cap:sync": "npm run build && cap sync",
+    "cap:android": "npm run cap:sync && cap open android",
+    "cap:ios": "npm run cap:sync && cap open ios",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "typecheck": "tsc -b --noEmit"
   },
   "dependencies": {
+    "@capacitor/android": "^8.5.3",
+    "@capacitor/core": "^8.5.3",
+    "@capacitor/ios": "^8.5.3",
     "@fontsource-variable/fraunces": "^5.3.0",
     "@fontsource-variable/inter": "^5.3.0",
     "@maplibre/maplibre-gl-leaflet": "^0.1.4",
@@ -28,6 +34,7 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.5.3",
     "@playwright/test": "1.56",
     "@tailwindcss/vite": "^4.3.3",
     "@testing-library/jest-dom": "^7.0.1",

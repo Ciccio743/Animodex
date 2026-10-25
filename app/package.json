@@ -1,0 +1,50 @@
+{
+  "name": "animodex",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "build:single": "tsc -b && vite build --mode single",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "typecheck": "tsc -b --noEmit"
+  },
+  "dependencies": {
+    "@fontsource-variable/fraunces": "^5.3.0",
+    "@fontsource-variable/inter": "^5.3.0",
+    "@maplibre/maplibre-gl-leaflet": "^0.1.4",
+    "html-to-image": "^1.11.13",
+    "idb": "^8.0.4",
+    "leaflet": "^1.9.4",
+    "lucide-react": "^1.60.0",
+    "maplibre-gl": "^5.24.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-router": "^7.18.4",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56",
+    "@tailwindcss/vite": "^4.3.3",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.8",
+    "@types/leaflet": "^1.9.22",
+    "@types/node": "^26.6.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "fake-indexeddb": "^6.2.6",
+    "jsdom": "^29.1.1",
+    "tailwindcss": "^4.3.3",
+    "typescript": "5.9",
+    "vite": "^8.3.4",
+    "vite-plugin-pwa": "^2.0.0",
+    "vite-plugin-singlefile": "^2.3.4",
+    "vitest": "^5.0.5"
+  }
+}

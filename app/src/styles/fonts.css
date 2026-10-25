@@ -1,0 +1,16 @@
+/* Polices embarquées (SIL OFL 1.1), sous-ensemble latin seulement : couvre le français
+   et garde l'application légère (notamment la version « un seul fichier »). */
+@font-face {
+  font-family: 'Inter Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('@fontsource-variable/inter/files/inter-latin-wght-normal.woff2') format('woff2-variations');
+}
+@font-face {
+  font-family: 'Fraunces Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('@fontsource-variable/fraunces/files/fraunces-latin-wght-normal.woff2') format('woff2-variations');
+}

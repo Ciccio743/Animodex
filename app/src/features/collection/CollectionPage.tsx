@@ -70,7 +70,7 @@ export function CollectionPage() {
       {catalog.length === 0 && (
         <EmptyState icon={Compass} title="Ton catalogue est vide">
           <p>Il se remplit avec les espèces que tu consultes, observes ou télécharges pour une zone depuis iNaturalist.</p>
-          <Link to="/decouvrir" className="btn btn-primary mt-3">
+          <Link to="/explorer" className="btn btn-primary mt-3">
             Partir à la découverte
           </Link>
         </EmptyState>

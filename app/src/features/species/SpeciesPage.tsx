@@ -89,7 +89,7 @@ export function SpeciesPage() {
         <Link to={`/cartes/${s.id}`} className="btn btn-secondary">
           <LayoutGrid size={18} aria-hidden="true" /> {view.unlocked ? 'Ma carte' : 'Aperçu de la carte'}
         </Link>
-        <Link to={`/carte?espece=${s.inatTaxonId}&nom=${encodeURIComponent(displayName(s))}`} className="btn btn-secondary col-span-2">
+        <Link to={`/explorer?espece=${s.inatTaxonId}&nom=${encodeURIComponent(displayName(s))}`} className="btn btn-secondary col-span-2">
           <MapIcon size={18} aria-hidden="true" /> Où le trouver ?
         </Link>
       </div>

@@ -37,6 +37,8 @@ interface Props {
   overlay?: { url: string; attribution: string; key: string };
   /** Position actuelle du téléphone (point bleu + cercle de précision). */
   me?: { lat: number; lng: number; accuracyM: number };
+  /** Appelé quand la carte s'arrête de bouger : centre et rayon visible (km). */
+  onMoveEnd?: (view: { lat: number; lng: number; radiusKm: number }) => void;
   className?: string;
   label: string;
   testId?: string;
@@ -96,7 +98,7 @@ function addBaseMap(m: L.Map, container: HTMLElement) {
 }
 
 /** Petite enveloppe autour de Leaflet (sans dépendance React supplémentaire). */
-export function LeafletMap({ points = [], selectedId, onSelect, pick, focus, me, overlay, className, label, testId }: Props) {
+export function LeafletMap({ points = [], selectedId, onSelect, pick, focus, me, overlay, onMoveEnd, className, label, testId }: Props) {
   const el = useRef<HTMLDivElement>(null);
   const map = useRef<L.Map>(undefined);
   const layer = useRef<L.LayerGroup>(undefined);
@@ -108,6 +110,8 @@ export function LeafletMap({ points = [], selectedId, onSelect, pick, focus, me,
   const onSelectRef = useRef(onSelect);
   onPickRef.current = pick?.onPick;
   onSelectRef.current = onSelect;
+  const onMoveEndRef = useRef(onMoveEnd);
+  onMoveEndRef.current = onMoveEnd;
   const picking = !!pick;
 
   useEffect(() => {
@@ -118,6 +122,10 @@ export function LeafletMap({ points = [], selectedId, onSelect, pick, focus, me,
     m.attributionControl.setPrefix(false);
     addBaseMap(m, el.current);
     layer.current = L.layerGroup().addTo(m);
+    m.on('moveend', () => {
+      const c = m.getCenter();
+      onMoveEndRef.current?.({ lat: c.lat, lng: c.lng, radiusKm: c.distanceTo(m.getBounds().getNorthEast()) / 1000 });
+    });
     if (picking) m.on('click', (e: L.LeafletMouseEvent) => onPickRef.current?.(e.latlng.lat, e.latlng.lng));
     map.current = m;
     // La carte peut être montée dans un conteneur qui vient d'apparaître.

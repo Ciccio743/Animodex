@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router';
-import { Award, Camera, Compass, MapPin, ShieldCheck, Shuffle, History } from 'lucide-react';
+import { Award, Map, MapPin, ShieldCheck } from 'lucide-react';
 import { useData } from '../../hooks/useData';
 import { ProgressBar } from '../../components/ProgressBar';
 import { computeBadges } from '../../domain/badges';
@@ -28,12 +28,11 @@ export function HomePage() {
   return (
     <div className="flex flex-col gap-5 animate-fade-up">
       <header className="pt-2">
-        <p className="text-sm text-moss-300">Bienvenue dans</p>
         <h1 className="font-display text-4xl font-bold tracking-tight">Animodex</h1>
-        <p className="mt-1 text-white/70">Explore, observe sans déranger, et garde le souvenir de chaque rencontre.</p>
+        <p className="mt-1 text-white/70">Trouve des animaux, photographie-les, collectionne leurs cartes.</p>
       </header>
 
-      <section className="surface-strong p-4" aria-labelledby="progress-title">
+      <Link to="/collection" className="surface-strong block p-4" aria-labelledby="progress-title">
         <div className="flex items-end justify-between">
           <h2 id="progress-title" className="font-semibold">
             Ton Animodex
@@ -45,29 +44,15 @@ export function HomePage() {
         <div className="mt-3">
           <ProgressBar value={discovered} max={Math.max(progress.catalogSize, 1)} label="Progression dans ton catalogue" />
         </div>
-        <p className="mt-2 text-xs text-white/60">
-          Catalogue : {progress.catalogSize} espèce{progress.catalogSize > 1 ? 's' : ''} consultée{progress.catalogSize > 1 ? 's' : ''} ou téléchargée{progress.catalogSize > 1 ? 's' : ''} depuis iNaturalist
-        </p>
-        <p className="mt-2 text-xs text-white/60">
-          {progress.totalObservations} observation{progress.totalObservations > 1 ? 's' : ''} enregistrée{progress.totalObservations > 1 ? 's' : ''}
-          {progress.toIdentifyCount > 0 && ` · ${progress.toIdentifyCount} à identifier`}
-        </p>
-      </section>
+        {progress.toIdentifyCount > 0 && <p className="mt-2 text-xs text-amber-200">{progress.toIdentifyCount} observation{progress.toIdentifyCount > 1 ? 's' : ''} à identifier</p>}
+      </Link>
 
-      <Link to="/decouvrir" className="btn btn-primary min-h-14 text-lg">
-        <Compass aria-hidden="true" /> Partir à la découverte
+      <Link to="/explorer" className="btn btn-primary min-h-16 text-lg">
+        <Map aria-hidden="true" /> Explorer autour de moi
       </Link>
-      <div className="grid grid-cols-2 gap-3">
-        <Link to="/observations/nouvelle?photo=1" className="btn btn-secondary min-h-14 px-3 text-sm leading-tight">
-          <Camera size={20} aria-hidden="true" /> Identifier une photo
-        </Link>
-        <Link to="/decouvrir?surprise=1" className="btn btn-secondary min-h-14 px-3 text-sm leading-tight">
-          <Shuffle size={20} aria-hidden="true" /> Découverte surprise
-        </Link>
-      </div>
-      <Link to="/observations/nouvelle?passe=1" className="btn btn-secondary min-h-12 text-sm">
-        <History size={20} aria-hidden="true" /> Ajouter un animal déjà rencontré
-      </Link>
+      <p className="-mt-3 text-center text-sm text-white/60">
+        Tu as vu un animal ? Touche le <b className="text-moss-300">+</b> en bas.
+      </p>
 
       {nextGoal && (
         <section className="surface flex items-center gap-3 p-4" aria-label="Objectif en cours">

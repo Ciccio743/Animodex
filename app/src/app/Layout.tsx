@@ -1,14 +1,13 @@
 import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router';
-import { Compass, House, LayoutGrid, Map, Plus, User, WifiOff } from 'lucide-react';
+import { House, LayoutGrid, Map, Plus, User, WifiOff } from 'lucide-react';
 import { useData, useOnline } from '../hooks/useData';
 import { UpdatePrompt } from './UpdatePrompt';
 import { AddSheet } from './AddSheet';
 
 const TABS = [
   { to: '/', label: 'Accueil', icon: House, end: true },
-  { to: '/decouvrir', label: 'Découvrir', icon: Compass },
-  { to: '/carte', label: 'Map', icon: Map },
+  { to: '/explorer', label: 'Explorer', icon: Map },
   { to: '/collection', label: 'Collection', icon: LayoutGrid },
   { to: '/profil', label: 'Profil', icon: User },
 ];
@@ -70,7 +69,7 @@ export function Layout() {
         aria-label="Navigation principale"
         className="no-print fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-night-950/90 pb-[var(--safe-bottom)] backdrop-blur-lg"
       >
-        {/* Deux moitiés de même largeur : le bouton + reste pile au centre de l'écran. */}
+        {/* Deux onglets de chaque côté : le bouton + reste pile au centre de l'écran. */}
         <div className="mx-auto grid max-w-xl grid-cols-[1fr_auto_1fr] items-end">
           <ul className="grid grid-cols-2">{TABS.slice(0, 2).map(renderTab)}</ul>
           <div className="flex justify-center px-1">
@@ -84,7 +83,7 @@ export function Layout() {
               <Plus size={34} strokeWidth={2.8} aria-hidden="true" />
             </button>
           </div>
-          <ul className="grid grid-cols-3">{TABS.slice(2).map(renderTab)}</ul>
+          <ul className="grid grid-cols-2">{TABS.slice(2).map(renderTab)}</ul>
         </div>
       </nav>
       {adding && <AddSheet onClose={() => setAdding(false)} />}

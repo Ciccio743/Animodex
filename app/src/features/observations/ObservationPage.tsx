@@ -12,7 +12,7 @@ import { formatDateTime } from '../../utils/format';
 import { NotFoundPage } from '../../app/NotFoundPage';
 import { displayPosition } from '../../domain/location';
 import { LeafletMap } from '../map/LeafletMap';
-import { STATUS_COLORS } from '../map/MapPage';
+import { STATUS_COLORS } from '../explore/ExplorePage';
 
 export function ObservationPage() {
   const { observationId = '' } = useParams();

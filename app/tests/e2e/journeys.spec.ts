@@ -5,12 +5,15 @@ import { mockSources } from './inatApi';
 const PHOTO = 'public/icons/icon-512.png'; // image de test (pas une photo d'animal)
 const nav = (page: Page) => page.getByRole('navigation', { name: 'Navigation principale' });
 
+/** Ouvre / ferme la liste « animaux de la zone » en bas d'Explorer. */
+const toggleList = (page: Page) => page.getByTestId('explore-sheet').locator('button[aria-expanded]').click();
+
 async function chooseLyon(page: Page) {
-  await page.goto('/decouvrir');
-  await page.getByPlaceholder('Ville, parc, région…').fill('Lyon');
-  await page.getByRole('button', { name: 'Chercher' }).click();
-  await page.getByRole('button', { name: 'Lyon, FR' }).click();
-  await expect(page.getByTestId('current-area')).toContainText('Lyon, FR');
+  await page.goto('/explorer');
+  await page.getByPlaceholder('Un animal ou un lieu…').fill('Lyon');
+  await page.getByRole('button', { name: 'Lyon, FR', exact: true }).click();
+  await expect(page.getByTestId('explore-sheet')).toContainText('à Lyon, FR');
+  await toggleList(page);
   await expect(page.getByTestId('discover-list')).toContainText('Héron cendré');
 }
 
@@ -38,8 +41,7 @@ test('ouverture, navigation et catalogue vierge', async ({ page }) => {
   await expect(page.getByRole('heading', { level: 1, name: 'Animodex' })).toBeVisible();
   await expect(page.getByTestId('home-progress')).toHaveText('0 espèce découverte');
   for (const [label, heading] of [
-    ['Découvrir', 'Partir à la découverte'],
-    ['Map', 'Carte des découvertes'],
+    ['Explorer', 'Explorer'],
     ['Collection', 'Collection'],
     ['Profil', 'Profil'],
     ['Accueil', 'Animodex'],
@@ -82,7 +84,7 @@ test('parcours complet : zone, fiche, observation, carte, rechargement', async (
   await page.reload();
   await expect(page.getByTestId('stat-species')).toHaveText('1');
   await expect(page.getByTestId('stat-observations')).toHaveText('2');
-  await nav(page).getByRole('link', { name: 'Map' }).click();
+  await nav(page).getByRole('link', { name: 'Explorer' }).click();
   await expect(page.getByTestId('observations-map')).toBeVisible();
   // Aucune position n'a été placée : rien d'inventé sur la carte, les trouvailles sont listées « Sans position ».
   await expect(page.locator('.ax-pin')).toHaveCount(0);
@@ -110,7 +112,7 @@ test('carte : la position GPS est placée d’office (exacte), puis la trouvaill
   await page.getByRole('button', { name: 'Enregistrer l’observation' }).click();
   await expect(page.getByText('Nouvelle carte débloquée !')).toBeVisible();
 
-  await nav(page).getByRole('link', { name: 'Map' }).click();
+  await nav(page).getByRole('link', { name: 'Explorer' }).click();
   const map = page.getByTestId('observations-map');
   await expect(map.locator('.ax-pin')).toHaveCount(1);
   await expect(map).toContainText('OpenStreetMap');
@@ -125,7 +127,8 @@ test('rencontre passée : date choisie, lieu approximatif posé sur la carte, pa
   await context.grantPermissions(['geolocation']);
   await context.setGeolocation({ latitude: 48.85, longitude: 2.35 });
   await page.goto('/');
-  await page.getByRole('link', { name: 'Ajouter un animal déjà rencontré' }).click();
+  await page.getByRole('button', { name: 'Ajouter un animal' }).click();
+  await page.getByRole('dialog', { name: 'Ajouter un animal' }).getByRole('button', { name: /Animal déjà rencontré/ }).click();
   await expect(page.getByRole('radio', { name: 'Rencontre passée' })).toHaveAttribute('aria-checked', 'true');
   await page.getByPlaceholder('Tape un nom : merle, héron, Ardea…').fill('merle');
   await page.getByRole('option', { name: /Merle noir/ }).click();
@@ -144,7 +147,7 @@ test('rencontre passée : date choisie, lieu approximatif posé sur la carte, pa
   await page.getByRole('button', { name: 'Enregistrer l’observation' }).click();
   await expect(page.getByText('Nouvelle carte débloquée !')).toBeVisible();
 
-  await nav(page).getByRole('link', { name: 'Map' }).click();
+  await nav(page).getByRole('link', { name: 'Explorer' }).click();
   const map = page.getByTestId('observations-map');
   await expect(map.locator('.ax-pin')).toHaveCount(1);
   await map.locator('.ax-pin').click();
@@ -156,7 +159,7 @@ test('rencontre passée : date choisie, lieu approximatif posé sur la carte, pa
 test('carte : « où le trouver ? » colore les secteurs d’observation d’un animal', async ({ page }) => {
   const calls = await mockSources(page);
   await page.goto('/carte');
-  await page.getByPlaceholder('Où trouver… écureuil roux, héron ?').fill('merle');
+  await page.getByPlaceholder('Un animal ou un lieu…').fill('merle');
   await page.getByRole('option', { name: /Merle noir/ }).click();
   await expect(page.getByTestId('range-active')).toContainText('Merle noir');
   await expect(page.getByTestId('observations-map')).toContainText('iNaturalist');
@@ -191,16 +194,20 @@ test('bouton « + » : photo existante, ou saisie manuelle', async ({ page }) =>
   await expect(page.getByRole('radio', { name: 'Rencontre passée' })).toHaveAttribute('aria-checked', 'true');
 });
 
-test('carte : fond « jeu » vectoriel, et fond OSM de secours s’il ne charge pas', async ({ page }) => {
-  await page.goto('/carte');
-  await expect(page.getByTestId('observations-map')).toHaveAttribute('data-basemap', 'raster');
-  await expect(page.getByTestId('observations-map')).toContainText('OpenStreetMap');
+test.describe(() => {
+  // Le service worker garderait en cache l'échec du premier chargement : on teste ici le fond seul.
+  test.use({ serviceWorkers: 'block' });
+  test('carte : fond « jeu » vectoriel, et fond OSM de secours s’il ne charge pas', async ({ page }) => {
+    await page.goto('/carte');
+    await expect(page.getByTestId('observations-map')).toHaveAttribute('data-basemap', 'raster');
+    await expect(page.getByTestId('observations-map')).toContainText('OpenStreetMap');
 
-  await mockSources(page, { vectorBasemap: true });
-  await page.reload();
-  await expect(page.getByTestId('observations-map')).toHaveAttribute('data-basemap', 'vector');
-  await expect(page.getByTestId('observations-map').locator('canvas.maplibregl-canvas')).toHaveCount(1);
-  await expect(page.getByTestId('observations-map')).toContainText('OpenFreeMap');
+    await mockSources(page, { vectorBasemap: true });
+    await page.reload();
+    await expect(page.getByTestId('observations-map')).toHaveAttribute('data-basemap', 'vector');
+    await expect(page.getByTestId('observations-map').locator('canvas.maplibregl-canvas')).toHaveCount(1);
+    await expect(page.getByTestId('observations-map')).toContainText('OpenFreeMap');
+  });
 });
 
 test('carte : chercher un lieu puis toucher la carte pour placer le point', async ({ page }) => {
@@ -282,6 +289,7 @@ test('export PNG d’une carte', async ({ page }) => {
 
 test('découverte surprise : n’ajoute rien à la collection', async ({ page }) => {
   await chooseLyon(page);
+  await toggleList(page);
   await page.getByRole('button', { name: 'Découverte surprise' }).click();
   await expect(page.getByText('Découverte surprise — animal à rechercher')).toBeVisible();
   await page.goto('/collection');
@@ -291,10 +299,10 @@ test('découverte surprise : n’ajoute rien à la collection', async ({ page })
 test('erreur d’API : message clair et nouvel essai', async ({ page }) => {
   await page.context().unrouteAll();
   await mockSources(page, { speciesCountsStatus: 503 });
-  await page.goto('/decouvrir');
-  await page.getByPlaceholder('Ville, parc, région…').fill('Lyon');
-  await page.getByRole('button', { name: 'Chercher' }).click();
-  await page.getByRole('button', { name: 'Lyon, FR' }).click();
+  await page.goto('/explorer');
+  await page.getByPlaceholder('Un animal ou un lieu…').fill('Lyon');
+  await page.getByRole('button', { name: 'Lyon, FR', exact: true }).click();
+  await toggleList(page);
   await expect(page.getByRole('alert')).toContainText('iNaturalist est indisponible');
   await expect(page.getByRole('button', { name: 'Réessayer' })).toBeVisible();
 });
@@ -315,7 +323,8 @@ test('hors ligne : collection et liste de zone en cache restent consultables', a
   await page.goto('/collection');
   await expect(page.getByText('Hors ligne')).toBeVisible();
   await expect(page.getByTestId('stat-species')).toHaveText('1');
-  await nav(page).getByRole('link', { name: 'Découvrir' }).click();
+  await nav(page).getByRole('link', { name: 'Explorer' }).click();
+  await toggleList(page);
   await expect(page.getByTestId('discover-list')).toContainText('Héron cendré');
   await expect(page.getByTestId('area-source')).toContainText('cache');
   await context.setOffline(false);

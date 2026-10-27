@@ -1,9 +1,8 @@
 import { lazy, Suspense } from 'react';
-import { Route, Routes, useLocation } from 'react-router';
+import { Navigate, Route, Routes, useLocation } from 'react-router';
 import { Layout } from './Layout';
 import { HomePage } from '../features/home/HomePage';
-import { DiscoverPage } from '../features/discovery/DiscoverPage';
-import { MapPage } from '../features/map/MapPage';
+import { ExplorePage } from '../features/explore/ExplorePage';
 import { CollectionPage } from '../features/collection/CollectionPage';
 import { ProfilePage } from '../features/profile/ProfilePage';
 import { SpeciesPage } from '../features/species/SpeciesPage';
@@ -19,8 +18,10 @@ export function App() {
     <Routes>
       <Route element={<Layout />}>
         <Route index element={<HomePage />} />
-        <Route path="decouvrir" element={<DiscoverPage />} />
-        <Route path="carte" element={<MapPage />} />
+        <Route path="explorer" element={<ExplorePage />} />
+        {/* Anciennes adresses : Découvrir et Map sont réunis dans Explorer. */}
+        <Route path="decouvrir" element={<ToExplore />} />
+        <Route path="carte" element={<ToExplore />} />
         <Route path="collection" element={<CollectionPage />} />
         <Route path="profil" element={<ProfilePage />} />
         <Route
@@ -45,4 +46,9 @@ export function App() {
 /** Chaque ouverture de « nouvelle observation » repart d'un formulaire vierge, même depuis le formulaire. */
 function FreshObservationForm() {
   return <ObservationFormPage key={useLocation().key} />;
+}
+
+function ToExplore() {
+  const { search } = useLocation();
+  return <Navigate to={`/explorer${search}`} replace />;
 }

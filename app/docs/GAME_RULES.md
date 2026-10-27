@@ -47,3 +47,28 @@ Seules les observations **confirmées** comptent. Réenregistrer la même rencon
 ## Découverte surprise
 
 Tirage pondéré parmi les espèces de la zone (ou du catalogue local) : Commun 50, Rare 30, Épique 15, Légendaire 5. La probabilité réelle est affichée. **Une découverte surprise ne débloque jamais de carte** : seule une observation réelle le fait.
+
+## Finitions de carte (« sortes de cartes »)
+
+Chaque carte a une finition purement décorative, tirée au sort (`src/domain/finishes.ts`) :
+
+| Finition | Chance |
+|---|---|
+| Nature | 40 % |
+| Aquarelle | 18 % |
+| Rosée | 12 % |
+| Crépuscule | 9 % |
+| Givre | 7 % |
+| Aurore | 5 % |
+| Lucioles | 4 % |
+| Vitrail | 2,5 % |
+| Nuit étoilée | 1,5 % |
+| Soleil d'or | 0,8 % |
+| Prisme | 0,2 % |
+
+- Tirage à la création de la carte, puis à **chaque nouvelle observation confirmée** de l'espèce (pas lors d'une modification).
+- Toutes les finitions tirées sont gardées (`finishesFound`) ; la carte affiche la plus rare (`finish`).
+- Une carte créée avant les finitions est « Nature ».
+- La finition est indépendante de la rareté de l'espèce, affichée par les empreintes (1 à 4).
+
+La carte (recto « timbre d'explorateur ») n'affiche plus les PV ni la capacité : ils restent calculés et visibles sur la fiche de l'espèce. Le dos de carte est `src/assets/card-back.webp`.

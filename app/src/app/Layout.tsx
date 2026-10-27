@@ -39,7 +39,9 @@ export function Layout() {
   const { status, error } = useData();
   const { pathname } = useLocation();
   const [adding, setAdding] = useState(false);
-  useEffect(() => window.scrollTo(0, 0), [pathname]);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
 
   return (
     <div className="mx-auto flex min-h-dvh max-w-xl flex-col">

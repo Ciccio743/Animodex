@@ -2,7 +2,8 @@ import type { IDBPTransaction } from 'idb';
 import type { AnimodexDB, DB } from '../db/database';
 import type { AnimodexCard, IdentificationStatus, LocationPrecision, Observation, Photo } from '../domain/models';
 import { validateObservation, type ValidationIssue } from '../domain/validation';
-import { ensureCard } from '../domain/cards';
+import { applyFinishDraw, generateCard } from '../domain/cards';
+import { drawFinish, type CardFinish } from '../domain/finishes';
 import { ABILITY_MAP } from '../data/abilities';
 import { newId } from './ids';
 import { positionToStore } from '../domain/location';
@@ -39,7 +40,13 @@ export interface SaveResult {
   card?: AnimodexCard;
   /** Vrai si cette sauvegarde a débloqué la carte de l'espèce pour la première fois. */
   cardCreated: boolean;
+  /** Finition tirée par cette sauvegarde (nouvelle carte ou nouvelle observation confirmée). */
+  finishDrawn?: CardFinish;
+  /** Vrai si la finition tirée est plus rare que celle de la carte et la remplace. */
+  finishUpgraded?: boolean;
 }
+
+type CardOutcome = { card?: AnimodexCard; created: boolean; finishDrawn?: CardFinish; finishUpgraded?: boolean };
 
 function clean(s: string | undefined): string | undefined {
   const t = s?.trim();
@@ -78,24 +85,44 @@ function check(o: Observation, now: Date, speciesKnown: boolean): void {
 type WriteTx = IDBPTransaction<AnimodexDB, ('observations' | 'photos' | 'cards' | 'species')[], 'readwrite'>;
 const STORES = ['observations', 'photos', 'cards', 'species'] as const;
 
+/**
+ * Carte de l'espèce d'une observation confirmée. Une nouvelle carte reçoit une finition tirée au sort ;
+ * une nouvelle observation (`isNewObservation`) d'une espèce déjà débloquée retente sa chance.
+ */
 async function cardForConfirmed(
   tx: WriteTx,
   o: Observation,
   now: Date,
-): Promise<{ card?: AnimodexCard; created: boolean }> {
+  isNewObservation: boolean,
+  random: () => number,
+): Promise<CardOutcome> {
   if (o.identificationStatus !== 'confirmed' || !o.speciesId) return { created: false };
   const species = (await tx.objectStore('species').get(o.speciesId))!;
   const existing = await tx.objectStore('cards').index('bySpecies').get(o.speciesId);
-  const { card, created } = ensureCard(species, existing, ABILITY_MAP, now);
-  if (created) await tx.objectStore('cards').put(card);
-  return { card, created };
+  if (!existing) {
+    const finish = drawFinish(random);
+    const card = generateCard(species, ABILITY_MAP, now, finish);
+    await tx.objectStore('cards').put(card);
+    return { card, created: true, finishDrawn: finish, finishUpgraded: false };
+  }
+  if (!isNewObservation) return { card: existing, created: false };
+  const drawn = drawFinish(random);
+  const res = applyFinishDraw(existing, drawn, now);
+  if (res.card !== existing) await tx.objectStore('cards').put(res.card);
+  return { card: res.card, created: false, finishDrawn: drawn, finishUpgraded: res.upgraded };
 }
 
 /**
  * Crée une observation (et ses photos) dans une transaction unique. Si l'identification est confirmée
  * et que l'espèce n'a pas encore de carte, la carte est générée selon les règles déterministes.
  */
-export async function createObservation(db: DB, input: ObservationInput, photos: NewPhoto[] = [], now = new Date()): Promise<SaveResult> {
+export async function createObservation(
+  db: DB,
+  input: ObservationInput,
+  photos: NewPhoto[] = [],
+  now = new Date(),
+  random: () => number = Math.random,
+): Promise<SaveResult> {
   const ts = now.toISOString();
   const id = newId('obs');
   const photoRecords: Photo[] = photos.map((p) => ({ ...p, id: newId('photo'), observationId: id, createdAt: ts }));
@@ -110,10 +137,10 @@ export async function createObservation(db: DB, input: ObservationInput, photos:
   }
   for (const p of photoRecords) await tx.objectStore('photos').put(p);
   await tx.objectStore('observations').put(observation);
-  const { card, created } = await cardForConfirmed(tx, observation, now);
+  const { card, created, finishDrawn, finishUpgraded } = await cardForConfirmed(tx, observation, now, true, random);
   await tx.done;
   notifyDataChanged();
-  return { observation, card, cardCreated: created };
+  return { observation, card, cardCreated: created, finishDrawn, finishUpgraded };
 }
 
 export async function updateObservation(
@@ -144,10 +171,10 @@ export async function updateObservation(
   for (const pid of removed) await tx.objectStore('photos').delete(pid);
   for (const p of added) await tx.objectStore('photos').put(p);
   await tx.objectStore('observations').put(observation);
-  const { card, created } = await cardForConfirmed(tx, observation, now);
+  const { card, created, finishDrawn, finishUpgraded } = await cardForConfirmed(tx, observation, now, false, Math.random);
   await tx.done;
   notifyDataChanged();
-  return { observation, card, cardCreated: created };
+  return { observation, card, cardCreated: created, finishDrawn, finishUpgraded };
 }
 
 /**

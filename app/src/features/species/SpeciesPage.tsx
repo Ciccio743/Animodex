@@ -190,7 +190,6 @@ export function SpeciesPage() {
           <TypeBadge type={view.card.primaryType} />
           {view.card.secondaryType && <TypeBadge type={view.card.secondaryType} />}
           <RarityStars rarity={view.card.rarity} withLabel />
-          <span>{view.card.baseHp} PV</span>
           <span className="text-white/50">· carte {view.card.cardNumber}</span>
         </div>
         <p className="mt-2 text-sm">

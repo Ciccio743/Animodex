@@ -6,6 +6,9 @@ import { Notice } from '../../components/Notice';
 import { useData, usePhotoUrl } from '../../hooks/useData';
 import { buildCardView } from './cardView';
 import { AnimodexCardView } from './AnimodexCardView';
+import { CardFlip } from './CardFlip';
+import { cardFinish } from '../../domain/cards';
+import { CARD_FINISHES, FINISH_LABELS, formatFinishChance, type CardFinish } from '../../domain/finishes';
 import { exportCardPng } from '../../services/cardExport';
 import { formatShortDate } from '../../utils/format';
 import { NotFoundPage } from '../../app/NotFoundPage';
@@ -14,6 +17,8 @@ export function CardPage() {
   const { speciesId = '' } = useParams();
   const [params] = useSearchParams();
   const isNew = params.get('nouvelle') === '1';
+  const drawnParam = params.get('finition');
+  const drawn = (CARD_FINISHES as readonly string[]).includes(drawnParam ?? '') ? (drawnParam as CardFinish) : undefined;
   const { progress, cardsBySpecies, observations, speciesById, status } = useData();
   const species = speciesById.get(speciesId);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -52,21 +57,30 @@ export function CardPage() {
           <Sparkles aria-hidden="true" /> Nouvelle carte débloquée !
         </p>
       )}
+      {drawn && view.unlocked && (
+        <p className="ax-reveal-glow text-center text-sm font-semibold text-gold-300" role="status">
+          {isNew ? 'Finition' : 'Nouvelle finition, plus rare !'} {FINISH_LABELS[drawn]} ({formatFinishChance(drawn)})
+        </p>
+      )}
       {!view.unlocked && (
         <Notice>Cette espèce n’est pas encore dans ta collection. Enregistre une observation confirmée pour débloquer sa carte.</Notice>
       )}
-      <div className={`print-only-card mx-auto w-full max-w-[380px] ${isNew ? 'ax-reveal' : ''}`}>
-        <AnimodexCardView
-          ref={cardRef}
-          view={view}
-          photoUrl={view.unlocked ? photoUrl : undefined}
-          photoCaption={photoObs ? `Photo : ton observation du ${formatShortDate(photoObs.observedAt)}` : undefined}
-        />
+      <div className={`print-only-card mx-auto w-full max-w-[380px] px-2 ${isNew || drawn ? 'ax-reveal' : ''}`}>
+        <CardFlip finish={cardFinish(view.card)}>
+          <AnimodexCardView
+            ref={cardRef}
+            view={view}
+            photoUrl={view.unlocked ? photoUrl : undefined}
+          />
+        </CardFlip>
       </div>
+      <p className="no-print -mt-1 text-center text-xs text-white/60">Penche la carte du doigt · touche-la pour voir le dos</p>
 
       {view.unlocked && (
         <p className="text-center text-sm text-white/70">
           {view.observationCount} observation{view.observationCount > 1 ? 's' : ''} · dernière le {formatShortDate(view.lastObservation!.observedAt)}
+          <br />
+          Finitions trouvées : {(view.card.finishesFound ?? [cardFinish(view.card)]).map((f) => FINISH_LABELS[f]).join(', ')}
         </p>
       )}
 

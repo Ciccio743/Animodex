@@ -69,6 +69,23 @@ describe('création d’observation et génération de carte', () => {
     expect(await listObservations(db)).toHaveLength(2);
   });
 
+  it('tire une finition à la création puis à chaque nouvelle observation, et garde la plus rare', async () => {
+    const base = { speciesId: 'inat-900001', identificationStatus: 'confirmed' } as const;
+    const r1 = await createObservation(db, { ...base, observedAt: '2026-09-30T08:00:00Z' }, [], NOW, () => 0);
+    expect(r1.card).toMatchObject({ finish: 'nature', finishesFound: ['nature'] });
+    expect(r1.finishDrawn).toBe('nature');
+    const r2 = await createObservation(db, { ...base, observedAt: '2026-09-30T09:00:00Z' }, [], NOW, () => 0.9999);
+    expect(r2.finishDrawn).toBe('prisme');
+    expect(r2.finishUpgraded).toBe(true);
+    const r3 = await createObservation(db, { ...base, observedAt: '2026-09-30T10:00:00Z' }, [], NOW, () => 0.5);
+    expect(r3.finishUpgraded).toBe(false);
+    const card = (await getCardForSpecies(db, 'inat-900001'))!;
+    expect(card.finish).toBe('prisme');
+    expect(card.finishesFound).toEqual(['nature', 'prisme', r3.finishDrawn]);
+    const restored = parseBackup(JSON.stringify(await buildBackup(db)));
+    expect(restored.ok).toBe(true);
+  });
+
   it('enregistre la position selon la précision choisie', async () => {
     const base = { speciesId: 'inat-900001', observedAt: '2026-09-30T08:00:00Z', identificationStatus: 'confirmed' } as const;
     const approx = await createObservation(db, { ...base, latitude: 45.764043, longitude: 4.835659, locationPrecision: 'approximate' }, [], NOW);

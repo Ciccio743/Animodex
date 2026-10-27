@@ -149,7 +149,8 @@ export function ObservationFormPage() {
           : await createObservation(db, input, pending.map((p) => p.photo));
       // Demande au navigateur de protéger le stockage local (utile sur iOS), sans bloquer.
       void navigator.storage?.persist?.().catch(() => undefined);
-      if (res.cardCreated) navigate(`/cartes/${res.observation.speciesId}?nouvelle=1`, { replace: true });
+      if (res.cardCreated) navigate(`/cartes/${res.observation.speciesId}?nouvelle=1&finition=${res.finishDrawn}`, { replace: true });
+      else if (res.finishUpgraded) navigate(`/cartes/${res.observation.speciesId}?finition=${res.finishDrawn}`, { replace: true });
       else navigate(`/observations/${res.observation.id}`, { replace: true });
     } catch (err) {
       setErrors(err instanceof ObservationValidationError ? err.issues.map((i) => i.message) : [err instanceof Error ? err.message : 'Enregistrement impossible']);

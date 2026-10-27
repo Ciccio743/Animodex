@@ -4,6 +4,7 @@ import type { AnimodexCard, Observation, Photo, Settings, Species } from '../dom
 import { ANIMODEX_TYPES, RARITIES, DEFAULT_SETTINGS, TAXON_GROUPS, displayName } from '../domain/models';
 import { isoDate, observationSchema, validateObservation } from '../domain/validation';
 import { generateCard } from '../domain/cards';
+import { CARD_FINISHES } from '../domain/finishes';
 import { ABILITY_MAP } from '../data/abilities';
 import { setMeta } from '../repositories/settings';
 import { notifyDataChanged } from './dataEvents';
@@ -46,6 +47,8 @@ const cardSchema = z
     baseHp: z.number().int().positive(),
     abilityId: z.string().min(1),
     visualVariant: z.string(),
+    finish: z.enum(CARD_FINISHES).optional(),
+    finishesFound: z.array(z.enum(CARD_FINISHES)).optional(),
     rulesVersion: z.number().int().positive(),
     createdAt: isoDate,
     updatedAt: isoDate,

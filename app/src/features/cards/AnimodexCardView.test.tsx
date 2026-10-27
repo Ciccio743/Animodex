@@ -30,7 +30,7 @@ describe('carte Animodex (composant)', () => {
 
   it('la photo de l’utilisateur prime sur la photo de référence', () => {
     const view = buildCardView(heron, generateCard(heron, ABILITY_MAP), computeProgress([makeObservation()], [heron]));
-    render(<AnimodexCardView view={view} photoUrl="blob:test" photoCaption="Photo : ton observation" />);
+    render(<AnimodexCardView view={view} photoUrl="blob:test" />);
     expect(screen.getByRole('img', { name: /Photo d’observation/ })).toBeInTheDocument();
     expect(screen.queryByText(/Photo de référence/)).not.toBeInTheDocument();
   });
@@ -44,7 +44,9 @@ describe('carte Animodex (composant)', () => {
     expect(discoveryLine(view)).toBe('Première découverte : Étang, 01/04/2026');
     render(<AnimodexCardView view={view} />);
     expect(screen.queryByText(/Aperçu/)).not.toBeInTheDocument();
-    expect(screen.getByText(/Patience du pêcheur/)).toBeInTheDocument();
+    expect(screen.getByText('Première découverte : Étang, 01/04/2026')).toBeInTheDocument();
+    expect(screen.getByText('Nature')).toBeInTheDocument();
+    expect(screen.getByText('Vu 2 fois')).toBeInTheDocument();
   });
 
   it('espèce sensible : le lieu est masqué', () => {

@@ -1,5 +1,7 @@
 /** Modèles du domaine Animodex. Les champs naturalistes inconnus restent absents (undefined). */
 
+import type { CardFinish } from './finishes';
+
 export const ANIMODEX_TYPES = [
   'insect',
   'water',
@@ -171,6 +173,10 @@ export interface AnimodexCard {
   baseHp: number;
   abilityId: string;
   visualVariant: string;
+  /** Finition affichée (la plus rare trouvée). Absente sur les cartes créées avant les finitions : « nature ». */
+  finish?: CardFinish;
+  /** Toutes les finitions déjà tirées pour cette espèce. */
+  finishesFound?: CardFinish[];
   rulesVersion: number;
   createdAt: string;
   updatedAt: string;

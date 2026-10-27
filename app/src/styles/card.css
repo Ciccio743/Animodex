@@ -1,147 +1,177 @@
 /*
- * Carte Animodex « timbre d'explorateur » : bords dentelés, médaillon photo, ruban du nom, tampon de
- * découverte. Couleurs : finition (classe .finish-*), paysage selon l'habitat (--land-*), pastille du groupe.
- * Unités en cqw : la carte garde ses proportions à toutes les tailles.
+ * Carte Animodex : vraie carte à collectionner (63×88) au cadre orné, d'après le modèle de Tommy.
+ * Le cadre est une image (src/assets/card-frame.webp) teintée par la finition ; tout le contenu est
+ * dessiné en CSS. Unités en cqw : la carte garde ses proportions à toutes les tailles.
  */
 
-/* Polices de la carte : rondes et joyeuses (Fredoka pour les titres, Nunito pour le texte) */
 :root {
   --font-card: 'Nunito Variable', system-ui, sans-serif;
-  --font-card-title: 'Fredoka Variable', 'Nunito Variable', system-ui, sans-serif;
+  --font-card-title: 'Fraunces Variable', Georgia, serif;
+  --gold: linear-gradient(135deg, #8a5a00, #ffe27a 22%, #c98a0c 45%, #fff3b8 62%, #b07a08 82%, #ffe27a);
 }
 
-/* ---------- Finitions (partagées par la carte et la vignette) ---------- */
+/* ---------- Finitions (sortes de cartes) ---------- */
 .finish-nature {
-  --frame: #ffffff;
-  --paper: #fffdf6;
-  --sky: linear-gradient(#bfe9ff, #fff4d6);
-  --ribbon: #ff7a45;
+  --trim: var(--gold);
+  --fill: linear-gradient(160deg, #3c8f3a, #f2c94c 50%, #2f7a3a);
+  --banner: linear-gradient(100deg, #c0392b, #e67e22 25%, #f1c40f 45%, #27ae60 65%, #2980b9 82%, #8e44ad);
+  --panel: linear-gradient(#fffaf0, #fff1d6);
+  --frame-filter: none;
+  --frame-tint: none;
+  --frame-tint-opacity: 0;
+  --tint: none;
+  --extra: none;
   --foil: none;
   --foil-opacity: 0;
   --foil-blend: normal;
-  --glow: drop-shadow(0 11px 14px rgb(20 40 90 / 0.35));
+  --glow: drop-shadow(0 12px 16px rgb(0 0 0 / 0.45));
 }
 .finish-aquarelle {
-  --frame: linear-gradient(135deg, #ffc6df, #cdeaff 50%, #d6ffc6);
-  --paper: #fffaf5;
-  --sky: radial-gradient(55% 45% at 25% 30%, #ffc6df, transparent 70%), radial-gradient(55% 45% at 78% 35%, #bfe4ff, transparent 70%), #fff3e3;
-  --hill-a: #b8e8a0;
-  --hill-b: #98d98a;
-  --ribbon: #f0609a;
+  --trim: linear-gradient(135deg, #ff8fc0, #ffe0ef 30%, #ff6fae 55%, #ffd1e6 80%, #ff8fc0);
+  --fill: linear-gradient(160deg, #ffb3d4, #ffe6f2 50%, #c9b3ff);
+  --banner: linear-gradient(100deg, #ff6fae, #ffa6cf 40%, #b18cff);
+  --panel: radial-gradient(60% 60% at 20% 30%, #ffe0ef, transparent), radial-gradient(60% 60% at 80% 70%, #e0f0ff, transparent), #fffafc;
+  --frame-filter: saturate(1.1) brightness(1.12);
+  --frame-tint: linear-gradient(160deg, #ff6fae, #ffb3d4 50%, #c78bff);
+  --frame-tint-opacity: 0.85;
+  --tint: linear-gradient(160deg, rgb(255 170 210 / 0.25), rgb(180 210 255 / 0.2));
+  --extra: radial-gradient(30% 22% at 12% 85%, rgb(255 150 200 / 0.35), transparent), radial-gradient(28% 20% at 90% 12%, rgb(150 200 255 / 0.35), transparent);
   --foil: none;
   --foil-opacity: 0;
   --foil-blend: normal;
-  --glow: drop-shadow(0 11px 14px rgb(20 40 90 / 0.35));
+  --glow: drop-shadow(0 0 10px rgb(255 140 200 / 0.5)) drop-shadow(0 12px 16px rgb(0 0 0 / 0.45));
 }
 .finish-rosee {
-  --frame: linear-gradient(135deg, #c8ecff, #ffffff 30%, #a8dcff 55%, #ffffff 78%, #c8ecff);
-  --paper: #f7fcff;
-  --sky: linear-gradient(#a9ddff, #eaf8ff);
-  --ribbon: linear-gradient(90deg, #2f95dc, #4fb3f0);
-  --extra: var(--dew);
-  --foil: linear-gradient(115deg, transparent 30%, rgb(255 255 255 / 0.85) 45%, transparent 60%);
-  --foil-opacity: 0.6;
+  --trim: linear-gradient(135deg, #9fb7c9, #ffffff 25%, #b8d8f0 50%, #ffffff 72%, #8fb0c8);
+  --fill: linear-gradient(160deg, #8fd0ff, #e6f6ff 50%, #6fb6e8);
+  --banner: linear-gradient(100deg, #2f8fd8, #6fc8ff 50%, #2f8fd8);
+  --panel: linear-gradient(#f7fcff, #e6f4ff);
+  --frame-filter: brightness(1.18);
+  --frame-tint: linear-gradient(160deg, #a9c4dc, #e6f2ff 50%, #8fb0d0);
+  --frame-tint-opacity: 0.9;
+  --tint: linear-gradient(rgb(160 220 255 / 0.18), rgb(160 220 255 / 0.1));
+  --extra: radial-gradient(circle at 18% 22%, #fff 0 0.8cqw, transparent 1.3cqw), radial-gradient(circle at 78% 15%, #fff 0 1cqw, transparent 1.6cqw), radial-gradient(circle at 86% 62%, #fff 0 0.8cqw, transparent 1.3cqw), radial-gradient(circle at 10% 70%, #fff 0 1cqw, transparent 1.6cqw), radial-gradient(circle at 50% 8%, #fff 0 0.6cqw, transparent 1.1cqw), radial-gradient(circle at 62% 88%, #fff 0 0.7cqw, transparent 1.2cqw);
+  --foil: linear-gradient(115deg, transparent 30%, rgb(255 255 255 / 0.9) 45%, transparent 60%);
+  --foil-opacity: 0.55;
   --foil-blend: soft-light;
-  --glow: drop-shadow(0 0 11px rgb(150 215 255 / 0.6)) drop-shadow(0 11px 14px rgb(20 40 90 / 0.35));
+  --glow: drop-shadow(0 0 10px rgb(150 215 255 / 0.6)) drop-shadow(0 12px 16px rgb(0 0 0 / 0.45));
 }
 .finish-crepuscule {
-  --frame: linear-gradient(160deg, #ff9a5a, #ff5f8f 50%, #8a5cff);
-  --paper: #fff6f0;
-  --sky: radial-gradient(circle at 80% 26%, #fff3b0 0 9%, transparent 10%), linear-gradient(#ff7a5c, #ffa86b 45%, #ffd98a);
-  --hill-a: #7a55b8;
-  --hill-b: #5b3f99;
-  --ribbon: linear-gradient(90deg, #e8457a, #7a4ae8);
-  --extra: none;
-  --foil: linear-gradient(115deg, transparent 30%, rgb(255 255 255 / 0.85) 45%, transparent 60%);
+  --trim: linear-gradient(135deg, #ff7a3d, #ffd18a 25%, #ff4f8b 55%, #ffb36b 78%, #9b4ff0);
+  --fill: linear-gradient(160deg, #ff7a3d, #ff4f8b 50%, #7a3fd0);
+  --banner: linear-gradient(100deg, #e8457a, #ff8a3d 50%, #7a4ae8);
+  --panel: linear-gradient(#fff6ee, #ffe6d6);
+  --frame-filter: saturate(1.3);
+  --frame-tint: linear-gradient(170deg, #ffb03d, #ff5a3d 35%, #e0457a 65%, #7a3fd0);
+  --frame-tint-opacity: 0.85;
+  --tint: linear-gradient(rgb(255 110 60 / 0.25), rgb(150 60 200 / 0.25));
+  --extra: radial-gradient(circle at 82% 20%, rgb(255 240 170 / 0.9) 0 6%, rgb(255 200 120 / 0.35) 10%, transparent 22%);
+  --foil: linear-gradient(115deg, transparent 30%, rgb(255 220 180 / 0.85) 45%, transparent 60%);
   --foil-opacity: 0.45;
   --foil-blend: soft-light;
-  --glow: drop-shadow(0 0 11px rgb(255 120 140 / 0.5)) drop-shadow(0 11px 14px rgb(20 40 90 / 0.35));
+  --glow: drop-shadow(0 0 10px rgb(255 110 120 / 0.55)) drop-shadow(0 12px 16px rgb(0 0 0 / 0.45));
 }
 .finish-givre {
-  --frame: linear-gradient(135deg, #e6fbff, #8fdcf2 40%, #ffffff 60%, #b5ebff);
-  --paper: #f4fdff;
-  --sky: repeating-linear-gradient(60deg, transparent 0 6.5cqw, rgb(255 255 255 / 0.7) 6.5cqw 6.9cqw), repeating-linear-gradient(-60deg, transparent 0 6.5cqw, rgb(255 255 255 / 0.7) 6.5cqw 6.9cqw), linear-gradient(#b3ebff, #f2fdff);
-  --hill-a: #ffffff;
-  --hill-b: #dcf5ff;
-  --ribbon: linear-gradient(90deg, #1b8fb5, #2fb0d8);
-  --extra: var(--dew);
+  --trim: linear-gradient(135deg, #bfeeff, #ffffff 25%, #7fd3f0 50%, #ffffff 72%, #a8e2ff);
+  --fill: linear-gradient(160deg, #6fc3f0, #e9fbff 50%, #3f8fd0);
+  --banner: linear-gradient(100deg, #1b7fb5, #49b8e8 50%, #1b7fb5);
+  --panel: linear-gradient(#f6fdff, #dff4ff);
+  --frame-filter: brightness(1.2);
+  --frame-tint: linear-gradient(160deg, #7fd3ff, #d6f4ff 50%, #4fa8e8);
+  --frame-tint-opacity: 0.9;
+  --tint: linear-gradient(rgb(200 240 255 / 0.3), rgb(170 220 255 / 0.15));
+  --extra: repeating-linear-gradient(60deg, transparent 0 7cqw, rgb(255 255 255 / 0.25) 7cqw 7.3cqw), repeating-linear-gradient(-60deg, transparent 0 7cqw, rgb(255 255 255 / 0.25) 7cqw 7.3cqw);
   --foil: linear-gradient(115deg, transparent 30%, rgb(255 255 255 / 0.9) 45%, transparent 60%);
   --foil-opacity: 0.6;
   --foil-blend: soft-light;
-  --glow: drop-shadow(0 0 13px rgb(120 220 255 / 0.7)) drop-shadow(0 11px 14px rgb(20 40 90 / 0.35));
+  --glow: drop-shadow(0 0 12px rgb(120 220 255 / 0.7)) drop-shadow(0 12px 16px rgb(0 0 0 / 0.45));
 }
 .finish-aurore {
-  --frame: conic-gradient(from 20deg, #ff8fd0, #ffd84f, #6ef2b0, #5cc8ff, #b99bff, #ff8fd0);
-  --paper: #fffdf6;
-  --sky: linear-gradient(#c9b8ff, #ffd6f0 55%, #fff4d6);
-  --ribbon: linear-gradient(90deg, #ff4fb8, #8a55f0, #2fa0ef);
-  --extra: none;
+  --trim: linear-gradient(135deg, #ff6ec7, #ffd23f 20%, #5cf2a5 40%, #4fc3ff 60%, #b18cff 80%, #ff6ec7);
+  --fill: linear-gradient(160deg, #1d2a6b, #2f7a8a 50%, #5a2f8a);
+  --banner: linear-gradient(100deg, #ff4fb8, #8a55f0 35%, #2fa0ef 65%, #2fd18a);
+  --panel: linear-gradient(#fbf8ff, #ecf9ff);
+  --frame-filter: saturate(1.2);
+  --frame-tint: linear-gradient(180deg, #2fd18a, #2fa0ef 40%, #5a3fd0 75%, #ff4fb8);
+  --frame-tint-opacity: 0.8;
+  --tint: linear-gradient(rgb(40 60 140 / 0.15), transparent 60%);
+  --extra: radial-gradient(70% 22% at 30% 10%, rgb(90 255 170 / 0.55), transparent 70%), radial-gradient(60% 18% at 72% 16%, rgb(255 110 210 / 0.45), transparent 70%);
   --foil: linear-gradient(115deg, #ff6ec7, #ffd23f 20%, #5cf2a5 40%, #4fc3ff 60%, #b18cff 80%, #ff6ec7);
-  --foil-opacity: 0.6;
+  --foil-opacity: 0.5;
   --foil-blend: soft-light;
-  --glow: drop-shadow(0 0 14px rgb(177 140 255 / 0.65)) drop-shadow(0 11px 14px rgb(20 40 90 / 0.35));
+  --glow: drop-shadow(0 0 14px rgb(177 140 255 / 0.65)) drop-shadow(0 12px 16px rgb(0 0 0 / 0.45));
 }
 .finish-lucioles {
-  --frame: linear-gradient(135deg, #2fd17a, #c6ff6b 50%, #1fa36a);
-  --paper: #f7fff0;
-  --sky: linear-gradient(#2b3a7a, #4a5bb0 60%, #7a8ad6);
-  --hill-a: #2f7a4a;
-  --hill-b: #25603b;
-  --ribbon: linear-gradient(90deg, #168a55, #4fa82a);
-  --extra: radial-gradient(circle at 18% 30%, #fff98a 0 0.9cqw, rgb(255 250 120 / 0.35) 1.1cqw 2.9cqw, transparent 3.2cqw), radial-gradient(circle at 84% 22%, #fff98a 0 0.7cqw, rgb(255 250 120 / 0.35) 1.1cqw 2.5cqw, transparent 2.9cqw), radial-gradient(circle at 76% 58%, #fff98a 0 0.9cqw, rgb(255 250 120 / 0.35) 1.1cqw 2.9cqw, transparent 3.2cqw), radial-gradient(circle at 22% 64%, #fff98a 0 0.7cqw, rgb(255 250 120 / 0.35) 1.1cqw 2.5cqw, transparent 2.9cqw), radial-gradient(circle at 50% 10%, #fff98a 0 0.5cqw, transparent 1.8cqw);
+  --trim: linear-gradient(135deg, #1f8a4a, #c6ff6b 25%, #2fd17a 50%, #e6ff9a 72%, #1f7a3a);
+  --fill: linear-gradient(160deg, #0f3d2a, #1f6a3a 50%, #0f2f4a);
+  --banner: linear-gradient(100deg, #168a55, #4fa82a 50%, #168a55);
+  --panel: linear-gradient(#fbfff2, #ecffd9);
+  --frame-filter: brightness(0.95) saturate(1.2);
+  --frame-tint: linear-gradient(160deg, #2f9a4a, #b8f05a 50%, #1f7a3a);
+  --frame-tint-opacity: 0.85;
+  --tint: linear-gradient(rgb(10 30 90 / 0.45), rgb(10 40 40 / 0.25));
+  --extra: radial-gradient(circle at 18% 30%, #fff98a 0 0.9cqw, rgb(255 250 120 / 0.4) 1.2cqw 3.2cqw, transparent 3.6cqw), radial-gradient(circle at 84% 22%, #fff98a 0 0.7cqw, rgb(255 250 120 / 0.4) 1.1cqw 2.7cqw, transparent 3cqw), radial-gradient(circle at 76% 62%, #fff98a 0 0.9cqw, rgb(255 250 120 / 0.4) 1.2cqw 3.2cqw, transparent 3.6cqw), radial-gradient(circle at 26% 70%, #fff98a 0 0.7cqw, rgb(255 250 120 / 0.4) 1.1cqw 2.7cqw, transparent 3cqw), radial-gradient(circle at 50% 12%, #fff98a 0 0.6cqw, transparent 2cqw), radial-gradient(circle at 60% 40%, #fff98a 0 0.5cqw, transparent 1.8cqw), radial-gradient(circle at 8% 48%, #fff98a 0 0.5cqw, transparent 1.8cqw);
   --foil: none;
   --foil-opacity: 0;
   --foil-blend: normal;
-  --glow: drop-shadow(0 0 14px rgb(160 255 90 / 0.55)) drop-shadow(0 11px 14px rgb(20 40 90 / 0.35));
+  --glow: drop-shadow(0 0 14px rgb(160 255 90 / 0.55)) drop-shadow(0 12px 16px rgb(0 0 0 / 0.45));
 }
 .finish-vitrail {
-  --frame: conic-gradient(#ff5a5a 0 25%, #ffd23f 0 50%, #3fa9ff 0 75%, #4fd16a 0);
-  --paper: #fffdf6;
-  --sky: repeating-linear-gradient(45deg, transparent 0 12cqw, #2b2140 12cqw 13cqw), repeating-linear-gradient(-45deg, transparent 0 12cqw, #2b2140 12cqw 13cqw), conic-gradient(from 30deg at 50% 45%, #ff6b6b, #ffb02e, #ffe14d, #4fd16a, #3fa9ff, #a66bff, #ff6b6b);
-  --hill-a: transparent;
-  --hill-b: transparent;
-  --ribbon: #2b2140;
-  --extra: none;
+  --trim: conic-gradient(#ff5a5a 0 25%, #ffd23f 0 50%, #3fa9ff 0 75%, #4fd16a 0);
+  --fill: conic-gradient(from 30deg, #ff6b6b, #ffb02e, #ffe14d, #4fd16a, #3fa9ff, #a66bff, #ff6b6b);
+  --banner: linear-gradient(100deg, #b91c1c, #d97706 25%, #15803d 50%, #1d4ed8 75%, #7e22ce);
+  --panel: linear-gradient(#fffdf6, #fff3dc);
+  --frame-filter: saturate(1.8) contrast(1.1);
+  --frame-tint: none;
+  --frame-tint-opacity: 0;
+  --tint: repeating-linear-gradient(45deg, transparent 0 12cqw, rgb(30 20 50 / 0.85) 12cqw 12.7cqw), repeating-linear-gradient(-45deg, transparent 0 12cqw, rgb(30 20 50 / 0.85) 12cqw 12.7cqw);
+  --extra: conic-gradient(from 0deg at 50% 50%, rgb(255 80 80 / 0.18), rgb(255 210 60 / 0.18), rgb(80 210 110 / 0.18), rgb(60 160 255 / 0.18), rgb(170 100 255 / 0.18), rgb(255 80 80 / 0.18));
   --foil: linear-gradient(115deg, transparent 30%, rgb(255 255 255 / 0.85) 45%, transparent 60%);
-  --foil-opacity: 0.5;
+  --foil-opacity: 0.45;
   --foil-blend: soft-light;
-  --glow: drop-shadow(0 0 11px rgb(255 200 80 / 0.5)) drop-shadow(0 11px 14px rgb(20 40 90 / 0.35));
+  --glow: drop-shadow(0 0 10px rgb(255 200 80 / 0.5)) drop-shadow(0 12px 16px rgb(0 0 0 / 0.45));
 }
 .finish-nuit {
-  --frame: linear-gradient(135deg, #3b2a8f, #ff6ec7 40%, #4fc3ff 70%, #3b2a8f);
-  --paper: #f6f2ff;
-  --sky: radial-gradient(70% 50% at 30% 40%, rgb(255 110 199 / 0.55), transparent 70%), radial-gradient(60% 50% at 75% 30%, rgb(79 195 255 / 0.5), transparent 70%), linear-gradient(#1c1748, #3a2a8a);
-  --hill-a: #2a1f66;
-  --hill-b: #211852;
-  --ribbon: linear-gradient(90deg, #e0479f, #2f8fd8);
-  --extra: var(--stars);
+  --trim: linear-gradient(135deg, #6a38d6, #ff6ec7 30%, #4fc3ff 60%, #3b2a8f);
+  --fill: linear-gradient(160deg, #1c1748, #4b2a9a 50%, #12103a);
+  --banner: linear-gradient(100deg, #3b2a8f, #b03fb8 50%, #2f5fd8);
+  --panel: linear-gradient(#faf7ff, #eee6ff);
+  --frame-filter: saturate(1.2);
+  --frame-tint: linear-gradient(160deg, #8a55f0, #3b2a8f 50%, #c04fd8);
+  --frame-tint-opacity: 0.85;
+  --tint: linear-gradient(rgb(60 30 140 / 0.45), rgb(20 10 60 / 0.35));
+  --extra: radial-gradient(circle at 12% 18%, #fff 0 0.5cqw, transparent 0.9cqw), radial-gradient(circle at 30% 8%, #fff 0 0.4cqw, transparent 0.8cqw), radial-gradient(circle at 85% 14%, #fff 0 0.7cqw, transparent 1.2cqw), radial-gradient(circle at 70% 32%, #fff 0 0.4cqw, transparent 0.8cqw), radial-gradient(circle at 92% 48%, #fff 0 0.5cqw, transparent 0.9cqw), radial-gradient(circle at 6% 46%, #fff 0 0.4cqw, transparent 0.8cqw), radial-gradient(circle at 55% 6%, #fff 0 0.5cqw, transparent 0.9cqw), radial-gradient(circle at 80% 20%, #fff7cc 0 6%, rgb(255 240 200 / 0.3) 8%, transparent 12%), radial-gradient(60% 40% at 30% 30%, rgb(255 110 199 / 0.3), transparent 70%);
   --foil: linear-gradient(115deg, #ff6ec7, #ffd23f 20%, #5cf2a5 40%, #4fc3ff 60%, #b18cff 80%, #ff6ec7);
-  --foil-opacity: 0.35;
+  --foil-opacity: 0.3;
   --foil-blend: soft-light;
-  --glow: drop-shadow(0 0 16px rgb(120 90 255 / 0.65)) drop-shadow(0 11px 14px rgb(20 40 90 / 0.35));
+  --glow: drop-shadow(0 0 16px rgb(140 90 255 / 0.7)) drop-shadow(0 12px 16px rgb(0 0 0 / 0.45));
 }
 .finish-soleil {
-  --frame: linear-gradient(135deg, #e0a526, #ffe680 30%, #ffc93a 52%, #fff6c2 72%, #d9961a);
-  --paper: #fff8df;
-  --sky: repeating-conic-gradient(from 0deg at 50% 46%, #ffe27a 0deg 10deg, #fff3bf 10deg 20deg);
-  --hill-a: #f2c94c;
-  --hill-b: #e5a92e;
-  --ribbon: linear-gradient(90deg, #b87a06, #d99a12, #b87a06);
-  --extra: none;
+  --trim: var(--gold);
+  --fill: linear-gradient(160deg, #e0a526, #fff1a8 50%, #d9961a);
+  --banner: linear-gradient(100deg, #b87a06, #f2c230 50%, #b87a06);
+  --panel: linear-gradient(#fffbe6, #fff0b8);
+  --frame-filter: brightness(1.1) saturate(1.3);
+  --frame-tint: linear-gradient(160deg, #f2b400, #ffe27a 50%, #d98a00);
+  --frame-tint-opacity: 0.9;
+  --tint: linear-gradient(rgb(255 210 80 / 0.3), rgb(255 170 30 / 0.2));
+  --extra: repeating-conic-gradient(from 0deg at 70% 15%, rgb(255 245 190 / 0.35) 0deg 8deg, transparent 8deg 18deg);
   --foil: linear-gradient(115deg, transparent 25%, rgb(255 240 180 / 0.95) 45%, rgb(255 200 60 / 0.6) 55%, transparent 70%);
   --foil-opacity: 0.7;
   --foil-blend: overlay;
-  --glow: drop-shadow(0 0 18px rgb(255 196 40 / 0.8)) drop-shadow(0 11px 14px rgb(140 90 10 / 0.3));
+  --glow: drop-shadow(0 0 18px rgb(255 196 40 / 0.85)) drop-shadow(0 12px 16px rgb(0 0 0 / 0.4));
 }
 .finish-prisme {
-  --frame: conic-gradient(from 0deg, #ffffff, #b9ecff, #ffc9f0, #fff1b0, #c6ffe0, #ddd0ff, #ffffff);
-  --paper: #ffffff;
-  --sky: conic-gradient(from 0deg at 50% 46%, #e3f9ff, #ffe0f4, #fff6d1, #dcffea, #e9dfff, #e3f9ff);
-  --hill-a: #d4f1ff;
-  --hill-b: #eadcff;
-  --ribbon: linear-gradient(90deg, #4f6ef0, #9b4ff0, #e0479f);
-  --extra: var(--dew);
-  --foil: repeating-conic-gradient(from 0deg at 50% 50%, rgb(255 255 255 / 0.9) 0 8deg, rgb(150 215 255 / 0.6) 8deg 16deg, rgb(255 170 235 / 0.6) 16deg 24deg);
+  --trim: conic-gradient(from 0deg, #ffffff, #9fe6ff, #ffb8ec, #fff1a0, #b8ffd8, #d6c4ff, #ffffff);
+  --fill: conic-gradient(from 0deg, #e3f9ff, #ffd6f2, #fff4c4, #d4ffe6, #e6dbff, #e3f9ff);
+  --banner: linear-gradient(100deg, #4f6ef0, #9b4ff0 35%, #e0479f 65%, #2fb7d8);
+  --panel: linear-gradient(#ffffff, #f4f0ff);
+  --frame-filter: saturate(1.5) brightness(1.25);
+  --frame-tint: none;
+  --frame-tint-opacity: 0;
+  --tint: linear-gradient(135deg, rgb(160 230 255 / 0.2), rgb(255 180 240 / 0.2));
+  --extra: radial-gradient(circle at 18% 22%, #fff 0 0.8cqw, transparent 1.3cqw), radial-gradient(circle at 80% 14%, #fff 0 1cqw, transparent 1.6cqw), radial-gradient(circle at 86% 62%, #fff 0 0.8cqw, transparent 1.3cqw), radial-gradient(circle at 10% 70%, #fff 0 1cqw, transparent 1.6cqw);
+  --foil: repeating-conic-gradient(from 0deg at 50% 50%, rgb(255 255 255 / 0.9) 0 8deg, rgb(150 215 255 / 0.65) 8deg 16deg, rgb(255 170 235 / 0.65) 16deg 24deg);
   --foil-opacity: 0.45;
   --foil-blend: overlay;
   --glow: drop-shadow(0 0 20px rgb(190 160 255 / 0.9)) drop-shadow(0 0 7px rgb(255 255 255 / 0.9));
@@ -154,300 +184,373 @@
   container-type: inline-size;
 }
 .ax-card {
-  --dew: radial-gradient(circle at 20% 25%, #fff 0 0.7cqw, transparent 1.1cqw), radial-gradient(circle at 78% 18%, #fff 0 0.9cqw, transparent 1.3cqw), radial-gradient(circle at 85% 60%, #fff 0 0.7cqw, transparent 1.1cqw), radial-gradient(circle at 12% 62%, #fff 0 0.9cqw, transparent 1.3cqw), radial-gradient(circle at 50% 10%, #fff 0 0.5cqw, transparent 0.9cqw);
-  --stars: radial-gradient(circle at 12% 20%, #fff 0 0.5cqw, transparent 0.9cqw), radial-gradient(circle at 30% 8%, #fff 0 0.4cqw, transparent 0.7cqw), radial-gradient(circle at 85% 15%, #fff 0 0.7cqw, transparent 1.1cqw), radial-gradient(circle at 70% 35%, #fff 0 0.4cqw, transparent 0.7cqw), radial-gradient(circle at 90% 50%, #fff 0 0.5cqw, transparent 0.9cqw), radial-gradient(circle at 8% 50%, #fff 0 0.4cqw, transparent 0.7cqw), radial-gradient(circle at 55% 6%, #fff 0 0.5cqw, transparent 0.9cqw);
-  --clouds: radial-gradient(8cqw 3.6cqw at 22% 40%, rgb(255 255 255 / 0.9), transparent), radial-gradient(10.8cqw 4.3cqw at 29% 36%, rgb(255 255 255 / 0.9), transparent), radial-gradient(9.4cqw 3.6cqw at 80% 54%, rgb(255 255 255 / 0.85), transparent), radial-gradient(6.5cqw 2.9cqw at 86% 51%, rgb(255 255 255 / 0.85), transparent);
-  --hill-a: var(--land-a, #7fd36a);
-  --hill-b: var(--land-b, #5cbf55);
-  --extra: var(--clouds);
   position: relative;
   width: 100%;
   aspect-ratio: 63 / 88;
-  box-sizing: border-box;
-  padding: 2.9cqw;
-  background: var(--frame);
-  color: #2b1d0e;
+  border-radius: 4.4cqw;
+  overflow: hidden;
   isolation: isolate;
+  background: var(--fill);
+  color: #2b1d0e;
   font-family: var(--font-card);
   user-select: none;
-  /* Bords dentelés de timbre */
-  -webkit-mask:
-    linear-gradient(#000 0 0) content-box,
-    radial-gradient(circle 1.5cqw at 50% 50%, #0000 96%, #000) -2.35cqw -2.35cqw / 4.7cqw 4.7cqw;
-  mask:
-    linear-gradient(#000 0 0) content-box,
-    radial-gradient(circle 1.5cqw at 50% 50%, #0000 96%, #000) -2.35cqw -2.35cqw / 4.7cqw 4.7cqw;
 }
-.ax-card__paper {
-  position: relative;
-  height: 100%;
-  border-radius: 1cqw;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  background: var(--paper);
-}
-.ax-card__scene {
-  position: relative;
-  flex: none;
-  height: 76cqw;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  background:
-    radial-gradient(120% 55% at 15% 112%, var(--hill-a) 50%, transparent 51%),
-    radial-gradient(110% 50% at 95% 115%, var(--hill-b) 50%, transparent 51%),
-    var(--sky);
-}
-.ax-card__extra {
+.ax-card__frame {
   position: absolute;
   inset: 0;
   z-index: 1;
-  background: var(--extra);
+  width: 100%;
+  height: 100%;
+  filter: var(--frame-filter);
   pointer-events: none;
 }
-.ax-card__medal {
+.ax-card__frame-tint {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: var(--frame-tint);
+  opacity: var(--frame-tint-opacity);
+  mix-blend-mode: color;
+  mask-size: 100% 100%;
+  -webkit-mask-size: 100% 100%;
+  pointer-events: none;
+}
+.ax-card__body {
+  position: absolute;
+  z-index: 2;
+  inset: 3.4cqw 5.3cqw 5.4cqw;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5cqw;
+}
+
+/* Bandeau : médaillon du groupe + nom */
+.ax-card__banner {
+  position: relative;
+  flex: none;
+  height: 18.5cqw;
+  display: flex;
+  align-items: center;
+}
+.ax-card__group {
   position: relative;
   z-index: 2;
-  width: 52cqw;
-  height: 52cqw;
-  margin-top: -4cqw;
+  flex: none;
+  width: 18.5cqw;
+  height: 18.5cqw;
   border-radius: 50%;
-  border: 1.8cqw solid #fff;
-  box-shadow: 0 2.2cqw 5cqw rgb(60 40 10 / 0.25);
-  overflow: hidden;
   display: grid;
   place-items: center;
-  background: radial-gradient(circle at 40% 35%, #fffaf0, #ffe2bf);
+  color: #fff7e8;
+  background:
+    radial-gradient(circle at 35% 30%, var(--g-light), var(--g-dark) 70%) padding-box,
+    var(--gold) border-box;
+  border: 1.4cqw solid transparent;
+  box-shadow: 0 0.8cqw 2cqw rgb(0 0 0 / 0.35), inset 0 0 2cqw rgb(255 255 255 / 0.25);
 }
-.ax-card__medal img {
+.ax-card__group svg {
+  width: 9.5cqw;
+  height: 9.5cqw;
+  filter: drop-shadow(0 0.4cqw 0.4cqw rgb(0 0 0 / 0.3));
+}
+.ax-card__title {
+  flex: 1;
+  min-width: 0;
+  height: 15cqw;
+  margin-left: -3cqw;
+  padding: 0 2.5cqw 0 4.5cqw;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 0 3cqw 3cqw 0;
+  background: var(--banner) padding-box, var(--gold) border-box;
+  border: 0.9cqw solid transparent;
+  box-shadow: 0 0.8cqw 2cqw rgb(0 0 0 / 0.3);
+}
+.ax-card__name {
+  max-width: 100%;
+  font-family: var(--font-card-title);
+  font-weight: 800;
+  font-size: 8.4cqw;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #fff4cf;
+  -webkit-text-stroke: 0.25cqw #5a3200;
+  text-shadow: 0 0.5cqw 0 #5a3200, 0 0 2cqw rgb(255 220 120 / 0.6);
+  padding-bottom: 0.4cqw;
+}
+.ax-card__name.is-long {
+  font-size: 6.6cqw;
+}
+.ax-card__name.is-very-long {
+  font-size: 5.2cqw;
+}
+.ax-card__latin {
+  margin-top: 0.6cqw;
+  font-style: italic;
+  font-weight: 700;
+  font-size: 3.4cqw;
+  color: #fff;
+  text-shadow: 0 0.3cqw 0.6cqw rgb(0 0 0 / 0.6);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* Grande image */
+.ax-card__window {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  border-radius: 3cqw;
+  overflow: hidden;
+  background: linear-gradient(#bfe9ff, #fff4d6) padding-box, var(--trim) border-box;
+  border: 1.1cqw solid transparent;
+  box-shadow: 0 0.8cqw 2cqw rgb(0 0 0 / 0.35);
+}
+.ax-card__window > img {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
+.ax-card__tint,
+.ax-card__extra {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.ax-card__tint {
+  background: var(--tint);
+}
+.ax-card__extra {
+  background: var(--extra);
+}
 .ax-card__placeholder {
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.5cqw;
-  color: #9a7a55;
-  font-size: 3.2cqw;
-  font-weight: 700;
-  text-align: center;
+  justify-content: center;
+  gap: 2cqw;
+  color: #8a6a45;
+  font-weight: 800;
+  font-size: 4cqw;
 }
 .ax-card__placeholder svg {
-  width: 16cqw;
-  height: 16cqw;
+  width: 22cqw;
+  height: 22cqw;
+  opacity: 0.6;
 }
-.ax-card__name {
+.ax-card__credit {
   position: absolute;
-  z-index: 3;
-  bottom: 4cqw;
-  left: 50%;
-  transform: translateX(-50%);
-  max-width: 86%;
-  box-sizing: border-box;
-  padding: 1.6cqw 9cqw;
-  background: var(--ribbon);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 3cqw 2.5cqw 1cqw;
+  font-size: 2.4cqw;
   color: #fff;
-  font-family: var(--font-card-title);
-  font-weight: 700;
-  font-size: 7.6cqw;
-  line-height: 1.1;
-  text-align: center;
+  text-shadow: 0 0.2cqw 0.6cqw rgb(0 0 0 / 0.8);
+  background: linear-gradient(transparent, rgb(0 0 0 / 0.5));
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  clip-path: polygon(0 0, 100% 0, 93% 50%, 100% 100%, 0 100%, 7% 50%);
-  text-shadow: 0 0.3cqw 0 rgb(0 0 0 / 0.15);
 }
-.ax-card__name.is-long {
-  font-size: 5.6cqw;
+
+/* Pastilles habitat / groupe / rencontres */
+.ax-card__pills {
+  flex: none;
+  display: flex;
+  gap: 1.2cqw;
+  height: 9.5cqw;
 }
-.ax-card__name.is-latin {
-  font-style: italic;
+.ax-card__pill {
+  --pill: linear-gradient(#2f8f3a, #1f6a2a);
+  --badge-a: #8ff09a;
+  --badge-b: #1f8a3a;
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  border-radius: 999px;
+  background: var(--pill) padding-box, var(--gold) border-box;
+  border: 0.6cqw solid transparent;
+  color: #fff;
+  box-shadow: 0 0.6cqw 1.4cqw rgb(0 0 0 / 0.3);
 }
-.ax-card__group {
-  position: absolute;
-  z-index: 4;
-  top: 4.3cqw;
-  left: 4.3cqw;
-  width: 14.4cqw;
-  height: 14.4cqw;
+.ax-card__pill.is-group {
+  --pill: linear-gradient(#8a3a12, #5e2408);
+  --badge-a: var(--g-light);
+  --badge-b: var(--g-dark);
+}
+.ax-card__pill.is-seen {
+  --pill: linear-gradient(#1e3f9a, #142a6a);
+  --badge-a: #8fc3ff;
+  --badge-b: #1f4fd1;
+}
+.ax-card__pill i {
+  flex: none;
+  width: 9.6cqw;
+  height: 9.6cqw;
+  margin: -0.6cqw 0 -0.6cqw -0.6cqw;
   border-radius: 50%;
   display: grid;
   place-items: center;
+  background: radial-gradient(circle at 35% 30%, var(--badge-a), var(--badge-b) 75%) padding-box, var(--gold) border-box;
+  border: 0.6cqw solid transparent;
+}
+.ax-card__pill i svg {
+  width: 5cqw;
+  height: 5cqw;
   color: #fff;
-  border: 0.9cqw solid #f3d27a;
-  box-shadow: 0 1cqw 3cqw rgb(0 0 0 / 0.2);
-  background: radial-gradient(circle at 35% 30%, var(--g-light), var(--g-dark));
+  filter: drop-shadow(0 0.3cqw 0.3cqw rgb(0 0 0 / 0.35));
 }
-.ax-card__group svg {
-  width: 8cqw;
-  height: 8cqw;
-}
-.ax-card__postmark {
-  position: absolute;
-  z-index: 4;
-  top: 4.3cqw;
-  right: 3.6cqw;
-  width: 22cqw;
-  height: 22cqw;
-  border-radius: 50%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  transform: rotate(12deg);
-  color: #d6456b;
-  border: 0.7cqw solid currentColor;
-  box-shadow: inset 0 0 0 1.1cqw rgb(255 255 255 / 0.35), inset 0 0 0 1.6cqw currentColor;
-  background: rgb(255 255 255 / 0.35);
-  font-weight: 800;
-  font-size: 2.6cqw;
-  line-height: 1.2;
-  text-transform: uppercase;
-  text-align: center;
-  opacity: 0.88;
-}
-.ax-card__postmark strong {
-  font-size: 3.8cqw;
-}
-.ax-card__postmark span {
-  max-width: 17cqw;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.ax-card__info {
-  position: relative;
-  z-index: 2;
+.ax-card__pill > span {
   flex: 1;
-  min-height: 0;
+  min-width: 0;
+  text-align: center;
+  font-family: var(--font-card-title);
+  font-weight: 700;
+  font-size: 2.9cqw;
+  line-height: 1.05;
+  padding: 0 0.8cqw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* « Le savais-tu ? » */
+.ax-card__fact {
+  position: relative;
+  flex: none;
+  height: 22cqw;
+  margin-top: 2.6cqw;
+  padding: 4.2cqw 4cqw 1.6cqw;
+  border-radius: 3cqw;
+  background: var(--panel) padding-box, var(--gold) border-box;
+  border: 0.9cqw solid transparent;
+  box-shadow: 0 0.8cqw 2cqw rgb(0 0 0 / 0.3);
+  text-align: center;
   display: flex;
   flex-direction: column;
-  gap: 2.2cqw;
-  padding: 3.2cqw 4.3cqw 3cqw;
-}
-.ax-card__info > * {
-  flex-shrink: 0;
-}
-.ax-card__info > .ax-card__fact {
-  flex-shrink: 1;
-  min-height: 0;
-}
-.ax-card__latin {
-  text-align: center;
-  font-style: italic;
-  font-size: 4cqw;
-  color: #6b5a48;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.ax-card__chips {
-  display: flex;
-  flex-wrap: wrap;
   justify-content: center;
-  gap: 1.8cqw;
 }
-.ax-card__chip {
-  font-size: 3.2cqw;
-  font-weight: 800;
-  padding: 0.9cqw 2.9cqw;
-  border-radius: 999px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  background: #e4ecff;
-  color: #2c4aa8;
-}
-.ax-card__chip.is-habitat {
-  background: #dff3d6;
-  color: #2f6b22;
-}
-.ax-card__chip.is-group {
-  background: #ffe8d6;
-  color: #9a4410;
-}
-.ax-card__discovery {
-  text-align: center;
-  font-size: 3cqw;
-  font-weight: 700;
-  color: #7a6450;
+.ax-card__fact-title {
+  position: absolute;
+  top: -3.4cqw;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.9cqw 6cqw;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.ax-card__fact {
-  overflow: hidden;
-  border-radius: 3.2cqw;
-  padding: 2.5cqw 3.4cqw;
-  background: rgb(255 236 200 / 0.7);
+  font-family: var(--font-card-title);
+  font-weight: 800;
+  font-size: 4.2cqw;
+  color: #3b2410;
+  background: linear-gradient(#fff6d8, #f3d48a) padding-box, var(--gold) border-box;
+  border: 0.6cqw solid transparent;
+  clip-path: polygon(4% 0, 96% 0, 100% 50%, 96% 100%, 4% 100%, 0 50%);
 }
 .ax-card__fact p {
   margin: 0;
-  font-size: 3.9cqw;
-  line-height: 1.35;
-  color: #3b2e22;
+  font-family: var(--font-card-title);
+  font-weight: 600;
+  font-size: 3.6cqw;
+  line-height: 1.3;
+  color: #2b1d0e;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-.ax-card__fact b {
-  font-weight: 800;
-}
-.ax-card__credit {
-  font-size: 2.4cqw;
+.ax-card__fact small {
+  margin-top: 0.6cqw;
+  font-size: 2.2cqw;
   color: #8a7a68;
-  text-align: center;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* Bas de carte : empreintes, tampon, numéro */
 .ax-card__bottom {
-  margin-top: auto;
+  flex: none;
+  height: 12cqw;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 2cqw;
+  gap: 1.2cqw;
 }
 .ax-card__paws {
+  flex: 1;
+  height: 9.5cqw;
   display: flex;
-  gap: 0.6cqw;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 1.5cqw;
+  border-radius: 999px;
+  background: linear-gradient(#f4efe4, #e2dccd) padding-box, var(--gold) border-box;
+  border: 0.6cqw solid transparent;
 }
 .ax-card__paws svg {
-  width: 6cqw;
-  height: 6cqw;
+  width: 6.4cqw;
+  height: 6.4cqw;
 }
-.ax-card__finish {
-  display: inline-flex;
+.ax-card__paws svg.is-lit {
+  filter: drop-shadow(0 0 1cqw rgb(255 150 40 / 0.9));
+}
+.ax-card__stamp {
+  flex: none;
+  width: 15cqw;
+  height: 15cqw;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.8cqw;
-  font-size: 3cqw;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #6b5a48;
+  justify-content: center;
+  font-family: var(--font-card-title);
+  font-weight: 700;
+  font-size: 2.3cqw;
+  line-height: 1.1;
+  color: #b0264f;
+  background: radial-gradient(circle, #fff3f7 55%, #ffd1e0) padding-box, linear-gradient(135deg, #ff7aa8, #ffd1e0, #e0457a) border-box;
+  border: 0.7cqw solid transparent;
+  box-shadow: inset 0 0 0 0.6cqw rgb(224 69 122 / 0.35), 0 0.6cqw 1.4cqw rgb(0 0 0 / 0.3);
 }
-.ax-card__finish svg {
-  width: 3.6cqw;
-  height: 3.6cqw;
+.ax-card__stamp svg {
+  width: 3.4cqw;
+  height: 3.4cqw;
+}
+.ax-card__stamp b {
+  font-size: 2.35cqw;
+}
+.ax-card__stamp.is-empty {
+  color: #8a7a68;
+  font-size: 2.6cqw;
 }
 .ax-card__number {
+  flex: none;
+  min-width: 17cqw;
+  height: 7.5cqw;
+  padding: 0 2cqw;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: linear-gradient(#fff8e0, #f3dfa0) padding-box, var(--gold) border-box;
+  border: 0.6cqw solid transparent;
   font-family: var(--font-card-title);
-  font-weight: 600;
-  font-size: 4.3cqw;
-  color: #6b5a48;
+  font-weight: 800;
+  font-size: 3.2cqw;
+  color: #3b2410;
 }
 
 /* Reflets : suivent le doigt via --mx / --my (posés par CardFlip) */
 .ax-card__foil,
 .ax-card__glare {
   position: absolute;
-  inset: 2.9cqw;
-  border-radius: 1cqw;
+  inset: 0;
   pointer-events: none;
 }
 .ax-card__foil {
@@ -465,15 +568,16 @@
 }
 
 /* Aperçu (pas encore découverte) */
-.ax-card.is-preview .ax-card__paper {
-  filter: saturate(0.5) brightness(0.95);
+.ax-card.is-preview .ax-card__body,
+.ax-card.is-preview .ax-card__frame {
+  filter: saturate(0.45) brightness(0.92);
 }
 .ax-card__ribbon {
   position: absolute;
   z-index: 7;
-  top: 30%;
-  left: 3cqw;
-  right: 3cqw;
+  top: 38%;
+  left: 4cqw;
+  right: 4cqw;
   text-align: center;
   padding: 1.6cqw;
   font-weight: 800;
@@ -541,22 +645,79 @@
 /* ---------- Vignette compacte de collection ---------- */
 .ax-mini {
   position: relative;
-  border-radius: 14px;
+  border-radius: 12px;
   padding: 3px;
-  background: var(--frame, #8d8d86);
-  container-type: inline-size;
+  background: var(--trim, #8d8d86);
+  box-shadow: 0 4px 10px rgb(0 0 0 / 0.25);
 }
 .ax-mini__inner {
-  border-radius: 11px;
+  border-radius: 9px;
   overflow: hidden;
-  background: var(--paper, #fffdf6);
-  color: #2b1d0e;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--fill, #fffdf6);
+  color: #fff;
+  font-family: var(--font-card);
 }
-.ax-mini__scene {
-  background:
-    radial-gradient(120% 55% at 15% 112%, var(--hill-a, #7fd36a) 50%, transparent 51%),
-    radial-gradient(110% 50% at 95% 115%, var(--hill-b, #5cbf55) 50%, transparent 51%),
-    var(--sky);
+.ax-mini__window {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  border-radius: 7px;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(#bfe9ff, #fff4d6) padding-box, var(--gold) border-box;
+  border: 2px solid transparent;
+}
+.ax-mini__window > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.ax-mini__group {
+  position: absolute;
+  left: 3px;
+  top: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: radial-gradient(circle at 35% 30%, var(--g-light), var(--g-dark)) padding-box, var(--gold) border-box;
+  border: 2px solid transparent;
+}
+.ax-mini__name {
+  border-radius: 6px;
+  padding: 2px 6px;
+  text-align: center;
+  background: var(--banner, #555) padding-box, var(--gold) border-box;
+  border: 1.5px solid transparent;
+  font-family: var(--font-card-title);
+  font-weight: 800;
+  font-size: 13px;
+  line-height: 1.2;
+  color: #fff4cf;
+  text-shadow: 0 1px 0 #5a3200, 0 0 4px rgb(0 0 0 / 0.5);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ax-mini__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2px;
+  padding: 1px 4px;
+  border-radius: 999px;
+  background: rgb(255 250 235 / 0.92);
+  color: #5a3a12;
+  font-size: 8.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0;
 }
 .ax-mini.is-locked {
   background: #3a423e;
@@ -565,8 +726,15 @@
   background: linear-gradient(170deg, #2a332e, #141a17);
   color: rgb(255 255 255 / 0.6);
 }
-.ax-mini.is-locked .ax-mini__scene {
+.ax-mini.is-locked .ax-mini__window {
   background: rgb(0 0 0 / 0.3);
+  border-color: #4a524e;
+}
+.ax-mini.is-locked .ax-mini__name {
+  background: #2a332e;
+  color: rgb(255 255 255 / 0.7);
+  text-shadow: none;
+  border-color: #4a524e;
 }
 
 /* ---------- Révélation d'une nouvelle carte ---------- */

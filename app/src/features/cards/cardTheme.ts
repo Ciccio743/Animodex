@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react';
+import { Building, Droplets, Flower2, Mountain, Sun, Trees, type LucideIcon } from 'lucide-react';
 import type { HabitatCode, TaxonGroup } from '../../domain/models';
 
 /** Couleurs des pastilles de groupe, les mêmes que sur le dos de carte. */
@@ -59,3 +60,17 @@ export const GROUP_SINGULAR: Record<TaxonGroup, string> = {
   amphibian: 'Amphibien',
   other_invertebrate: 'Invertébré',
 };
+
+const HABITAT_ICON_BY_LAND = new Map<Land, LucideIcon>([
+  [WATER, Droplets],
+  [FOREST, Trees],
+  [MEADOW, Flower2],
+  [MOUNTAIN, Mountain],
+  [SAND, Sun],
+  [CITY, Building],
+]);
+
+/** Icône de la pastille d'habitat. */
+export function habitatIcon(habitat: HabitatCode): LucideIcon {
+  return HABITAT_ICON_BY_LAND.get(LAND_BY_HABITAT[habitat]) ?? Trees;
+}

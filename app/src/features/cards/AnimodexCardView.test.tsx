@@ -45,7 +45,7 @@ describe('carte Animodex (composant)', () => {
     render(<AnimodexCardView view={view} />);
     expect(screen.queryByText(/Aperçu/)).not.toBeInTheDocument();
     expect(screen.getByText('Première découverte : Étang, 01/04/2026')).toBeInTheDocument();
-    expect(screen.getByText('Nature')).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: /Nature/ })).toBeInTheDocument();
     expect(screen.getByText('Vu 2 fois')).toBeInTheDocument();
   });
 

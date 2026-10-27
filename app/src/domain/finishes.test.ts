@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { CARD_FINISHES, drawFinish, FINISH_WEIGHTS, formatFinishChance } from './finishes';
-import { applyFinishDraw, cardFinish, generateCard } from './cards';
+import { applyFinishDraw, cardFinish, cardVersions, generateCard } from './cards';
 import { ABILITY_MAP } from '../data/abilities';
 import { HERON, sp } from '../test/inatFixtures';
 
@@ -53,5 +53,11 @@ describe('finitions de carte', () => {
     expect(res.card.finish).toBe('soleil');
     const again = applyFinishDraw(res.card, 'rosee');
     expect(again.card).toBe(res.card);
+  });
+
+  it('chaque finition trouvée est une carte, sans doublon, de la plus rare à la plus courante', () => {
+    let card = generateCard(heron, ABILITY_MAP, new Date(), 'rosee');
+    for (const f of ['nature', 'prisme', 'rosee', 'nature'] as const) card = applyFinishDraw(card, f).card;
+    expect(cardVersions(card)).toEqual(['prisme', 'rosee', 'nature']);
   });
 });

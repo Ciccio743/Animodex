@@ -44,9 +44,11 @@ export interface SaveResult {
   finishDrawn?: CardFinish;
   /** Vrai si la finition tirée est plus rare que celle de la carte et la remplace. */
   finishUpgraded?: boolean;
+  /** Vrai si la finition tirée n'avait jamais été trouvée : une carte de plus dans la collection. */
+  finishNew?: boolean;
 }
 
-type CardOutcome = { card?: AnimodexCard; created: boolean; finishDrawn?: CardFinish; finishUpgraded?: boolean };
+type CardOutcome = { card?: AnimodexCard; created: boolean; finishDrawn?: CardFinish; finishUpgraded?: boolean; finishNew?: boolean };
 
 function clean(s: string | undefined): string | undefined {
   const t = s?.trim();
@@ -103,13 +105,13 @@ async function cardForConfirmed(
     const finish = drawFinish(random);
     const card = generateCard(species, ABILITY_MAP, now, finish);
     await tx.objectStore('cards').put(card);
-    return { card, created: true, finishDrawn: finish, finishUpgraded: false };
+    return { card, created: true, finishDrawn: finish, finishUpgraded: false, finishNew: true };
   }
   if (!isNewObservation) return { card: existing, created: false };
   const drawn = drawFinish(random);
   const res = applyFinishDraw(existing, drawn, now);
   if (res.card !== existing) await tx.objectStore('cards').put(res.card);
-  return { card: res.card, created: false, finishDrawn: drawn, finishUpgraded: res.upgraded };
+  return { card: res.card, created: false, finishDrawn: drawn, finishUpgraded: res.upgraded, finishNew: res.firstTime };
 }
 
 /**
@@ -137,10 +139,10 @@ export async function createObservation(
   }
   for (const p of photoRecords) await tx.objectStore('photos').put(p);
   await tx.objectStore('observations').put(observation);
-  const { card, created, finishDrawn, finishUpgraded } = await cardForConfirmed(tx, observation, now, true, random);
+  const { card, created, finishDrawn, finishUpgraded, finishNew } = await cardForConfirmed(tx, observation, now, true, random);
   await tx.done;
   notifyDataChanged();
-  return { observation, card, cardCreated: created, finishDrawn, finishUpgraded };
+  return { observation, card, cardCreated: created, finishDrawn, finishUpgraded, finishNew };
 }
 
 export async function updateObservation(

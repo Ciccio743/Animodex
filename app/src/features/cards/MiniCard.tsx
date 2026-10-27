@@ -5,23 +5,23 @@ import { usePhotoUrl } from '../../hooks/useData';
 import type { CardView } from './cardView';
 import { displayName } from '../../domain/models';
 import { cardFinish } from '../../domain/cards';
-import { FINISH_LABELS } from '../../domain/finishes';
+import { FINISH_LABELS, type CardFinish } from '../../domain/finishes';
 import { RARITY_LABELS, RARITY_STARS } from '../../domain/labels';
 import { groupStyle, landStyle } from './cardTheme';
 import { Paw } from './AnimodexCardView';
 
 /** Vignette de collection, lisible à petite taille, aux couleurs de la finition de la carte. */
-export function MiniCard({ view, pending = false }: { view: CardView; pending?: boolean }) {
+export function MiniCard({ view, pending = false, finish: shownFinish }: { view: CardView; pending?: boolean; finish?: CardFinish }) {
   const { species, card, unlocked } = view;
   const ownPhoto = usePhotoUrl(unlocked ? view.lastObservation?.photoIds[0] : undefined);
   const photoUrl = ownPhoto ?? species.media[0]?.thumbnailUrl;
   const name = displayName(species);
   const GroupIcon = GROUP_ICON[species.group];
-  const finish = cardFinish(card);
+  const finish = shownFinish ?? cardFinish(card);
   const paws = RARITY_STARS[card.rarity];
   return (
     <Link
-      to={unlocked ? `/cartes/${species.id}` : `/especes/${species.id}`}
+      to={unlocked ? `/cartes/${species.id}${shownFinish ? `?version=${shownFinish}` : ''}` : `/especes/${species.id}`}
       className={`ax-mini ${unlocked ? `finish-${finish}` : 'is-locked'} block`}
       style={landStyle(species.habitats)}
       aria-label={`${name}${unlocked ? `, finition ${FINISH_LABELS[finish]}` : ' (pas encore découverte)'}`}

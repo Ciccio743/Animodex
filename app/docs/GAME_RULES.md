@@ -67,7 +67,7 @@ Chaque carte a une finition purement décorative, tirée au sort (`src/domain/fi
 | Prisme | 0,2 % |
 
 - Tirage à la création de la carte, puis à **chaque nouvelle observation confirmée** de l'espèce (pas lors d'une modification).
-- Toutes les finitions tirées sont gardées (`finishesFound`) ; la carte affiche la plus rare (`finish`).
+- Chaque finition différente trouvée est **une carte de plus** dans la collection (`finishesFound`) ; retirer une finition déjà trouvée n'ajoute rien. La carte principale de l'espèce est la plus rare (`finish`), et la page de la carte permet de passer d'une version à l'autre.
 - Une carte créée avant les finitions est « Nature ».
 - La finition est indépendante de la rareté de l'espèce, affichée par les empreintes (1 à 4).
 

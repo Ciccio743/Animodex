@@ -75,7 +75,8 @@ test('parcours complet : zone, fiche, observation, carte, rechargement', async (
   await page.goto('/observations/nouvelle?species=inat-900001');
   await expect(page.getByText(/Tu connais déjà cette espèce/)).toBeVisible();
   await page.getByRole('button', { name: 'Enregistrer l’observation' }).click();
-  await expect(page.getByRole('heading', { level: 1, name: 'Héron cendré' })).toBeVisible();
+  // Fiche de l'observation, ou la carte si le tirage a donné une nouvelle sorte de carte.
+  await expect(page.getByRole('heading', { level: 1, name: /^(Héron cendré|Carte AX-900001)$/ })).toBeVisible();
 
   await page.goto('/collection');
   await page.reload();

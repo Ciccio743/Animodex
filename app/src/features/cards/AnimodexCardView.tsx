@@ -3,7 +3,7 @@ import { Sparkles } from 'lucide-react';
 import { HABITAT_LABELS, RARITY_LABELS, RARITY_STARS } from '../../domain/labels';
 import { displayName } from '../../domain/models';
 import { cardFinish } from '../../domain/cards';
-import { FINISH_LABELS } from '../../domain/finishes';
+import { FINISH_LABELS, type CardFinish } from '../../domain/finishes';
 import { GROUP_ICON } from '../../components/typeTheme';
 import { discoveryLine, type CardView } from './cardView';
 import { GROUP_SINGULAR, groupStyle, landStyle } from './cardTheme';
@@ -12,17 +12,19 @@ interface Props {
   view: CardView;
   /** Photo personnelle de l'observation (jamais une image inventée). */
   photoUrl?: string;
+  /** Version à afficher (par défaut : la plus rare trouvée). */
+  finish?: CardFinish;
   className?: string;
 }
 
 const postmarkDate = new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' });
 
 /** Carte Animodex « timbre d'explorateur », au format 63×88. */
-export const AnimodexCardView = forwardRef<HTMLDivElement, Props>(function AnimodexCardView({ view, photoUrl, className = '' }, ref) {
+export const AnimodexCardView = forwardRef<HTMLDivElement, Props>(function AnimodexCardView({ view, photoUrl, finish: shownFinish, className = '' }, ref) {
   const { species, card, unlocked } = view;
   const GroupIcon = GROUP_ICON[species.group];
   const paws = RARITY_STARS[card.rarity];
-  const finish = cardFinish(card);
+  const finish = shownFinish ?? cardFinish(card);
   const name = displayName(species);
   const habitat = species.habitats[0];
   const place = discoveryLine(view);

@@ -16,6 +16,7 @@ import { assignTypes } from '../../domain/typing';
 import { SpeciesFilters } from '../discovery/SpeciesFilters';
 import { buildCardView, type CardView } from '../cards/cardView';
 import { MiniCard } from '../cards/MiniCard';
+import { cardVersions } from '../../domain/cards';
 import { formatShortDate } from '../../utils/format';
 
 type Sort = 'number' | 'name' | 'recent' | 'rarity';
@@ -44,6 +45,11 @@ export function CollectionPage() {
   }, [catalog, filter, cardsBySpecies, progress, showLocked, sort]);
 
   const discovered = progress.discoveredSpeciesIds;
+  // Chaque finition trouvée est une carte de collection ; un doublon ne compte qu'une fois.
+  const totalCards = useMemo(
+    () => [...cardsBySpecies.values()].filter((c) => discovered.has(c.speciesId)).reduce((n, c) => n + cardVersions(c).length, 0),
+    [cardsBySpecies, discovered],
+  );
   const byGroup = useMemo(() => breakdownBy(catalog, discovered, (s) => [s.group]), [catalog, discovered]);
   const byRarity = useMemo(() => breakdownBy(catalog, discovered, (s) => [assignRarity(s)]), [catalog, discovered]);
   const byType = useMemo(() => breakdownBy(catalog, discovered, (s) => [assignTypes(s).primary]), [catalog, discovered]);
@@ -51,11 +57,12 @@ export function CollectionPage() {
   return (
     <div className="flex flex-col gap-4 animate-fade-up">
       <PageHeader title="Collection" />
-      <section className="surface-strong grid grid-cols-3 gap-2 p-4 text-center" aria-label="Résumé de la collection">
+      <section className="surface-strong grid grid-cols-4 gap-2 p-4 text-center" aria-label="Résumé de la collection">
         <Stat value={discovered.size} label="espèces découvertes" testId="stat-species" />
+        <Stat value={totalCards} label="cartes" testId="stat-cards" />
         <Stat value={progress.totalObservations} label="observations" testId="stat-observations" />
         <Stat value={catalog.length} label="dans ton catalogue" testId="stat-catalog" />
-        <div className="col-span-3 mt-1">
+        <div className="col-span-4 mt-1">
           <ProgressBar value={discovered.size} max={Math.max(progress.catalogSize, 1)} label="Progression dans le catalogue" />
         </div>
       </section>
@@ -100,9 +107,11 @@ export function CollectionPage() {
         </EmptyState>
       ) : view === 'grid' ? (
         <div className="grid grid-cols-3 gap-2 sm:grid-cols-4" data-testid="collection-grid">
-          {views.slice(0, limit).map((v) => (
-            <MiniCard key={v.species.id} view={v} pending={progress.pendingSpeciesIds.has(v.species.id)} />
-          ))}
+          {views.slice(0, limit).flatMap((v) =>
+            v.unlocked
+              ? cardVersions(v.card).map((f) => <MiniCard key={`${v.species.id}-${f}`} view={v} finish={f} />)
+              : [<MiniCard key={v.species.id} view={v} pending={progress.pendingSpeciesIds.has(v.species.id)} />],
+          )}
         </div>
       ) : (
         <ul className="surface divide-y divide-white/5">

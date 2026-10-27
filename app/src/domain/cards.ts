@@ -61,6 +61,12 @@ export function cardFinish(card: AnimodexCard): CardFinish {
   return card.finish ?? DEFAULT_FINISH;
 }
 
+/** Finitions trouvées pour une carte, de la plus rare à la plus courante : une carte de collection chacune. */
+export function cardVersions(card: AnimodexCard): CardFinish[] {
+  const found = card.finishesFound ?? [cardFinish(card)];
+  return [...new Set(found)].sort((a, b) => finishRank(b) - finishRank(a));
+}
+
 /**
  * Applique une finition tirée à une carte existante : elle rejoint les finitions trouvées et
  * remplace la finition affichée si elle est plus rare.

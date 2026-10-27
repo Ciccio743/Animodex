@@ -142,7 +142,9 @@ test('rencontre passée : date choisie, lieu approximatif posé sur la carte, pa
   await expect(page.getByTestId('selected-species')).toHaveText('Merle noir');
   await page.getByRole('button', { name: 'Passer' }).click();
   await page.getByTestId('observed-at').fill('2025-07-14T10:30');
-  // Pas de position GPS placée d'office : on cherche le lieu puis on touche la carte.
+  // Pas de position GPS placée d'office : on ouvre la carte, on cherche le lieu puis on touche la carte.
+  await expect(page.getByTestId('where-summary')).toHaveText('Pas de lieu (facultatif)');
+  await page.getByRole('button', { name: 'Placer' }).click();
   await expect(page.getByTestId('pick-map')).toBeVisible();
   await expect(page.getByTestId('picked-position')).toHaveCount(0);
   await page.getByPlaceholder('Chercher un lieu : parc, lac, ville…').fill('tete d or');

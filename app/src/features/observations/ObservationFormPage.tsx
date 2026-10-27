@@ -57,7 +57,7 @@ export function ObservationFormPage() {
   // Nouvelle observation guidée en 3 étapes : l'animal, une photo (facultative), puis la vérification.
   const handed = !!(useLocation().state as PickedFilesState | null)?.files?.length;
   const [step, setStep] = useState<0 | 1 | 2>(() => (initialSpecies || initialTaxon ? (handed ? 2 : 1) : 0));
-  const [showWhere, setShowWhere] = useState(params.get('passe') === '1');
+  const [showWhere, setShowWhere] = useState(false);
   const [showWhen, setShowWhen] = useState(params.get('passe') === '1');
   // Nouvelle observation : la position du téléphone est placée d'office et suivie
   // tant que l'utilisateur ne déplace pas le point lui-même.
@@ -320,7 +320,7 @@ export function ObservationFormPage() {
                 {whereText}
               </div>
               <button type="button" className={change} onClick={() => setShowWhere((v) => !v)} aria-expanded={showWhere}>
-                {showWhere ? 'OK' : position ? 'Changer' : 'Placer'}
+                {showWhere ? 'Fermer' : position ? 'Changer' : 'Placer'}
               </button>
             </div>
             {showWhere && (
@@ -344,7 +344,7 @@ export function ObservationFormPage() {
               <Clock className="shrink-0 text-violet-300" aria-hidden="true" />
               <div className="min-w-0 flex-1 text-sm">{Math.abs(Date.now() - new Date(observedAt).getTime()) < 10 * 60_000 ? 'Maintenant' : formatDateTime(new Date(observedAt).toISOString())}</div>
               <button type="button" className={change} onClick={() => setShowWhen((v) => !v)} aria-expanded={showWhen}>
-                {showWhen ? 'OK' : 'Changer'}
+                {showWhen ? 'Fermer' : 'Changer'}
               </button>
             </div>
             {showWhen && dateField}
@@ -376,9 +376,12 @@ export function ObservationFormPage() {
                 ))}
               </div>
             )}
-            <button type="submit" className="btn btn-primary min-h-14 text-lg" disabled={busy || !db}>
-              {busy ? 'Enregistrement…' : 'Enregistrer l’observation'}
-            </button>
+            {/* Toujours visible au-dessus de la barre du bas : pas besoin de descendre pour enregistrer. */}
+            <div className="sticky bottom-[calc(3.75rem+var(--safe-bottom))] z-[1000] -mx-4 bg-gradient-to-t from-night-950 via-night-950/95 to-transparent px-4 pb-8 pt-4">
+              <button type="submit" className="btn btn-primary min-h-14 w-full text-lg shadow-[0_6px_20px_rgb(0_0_0_/_0.5)]" disabled={busy || !db}>
+                {busy ? 'Enregistrement…' : 'Enregistrer l’observation'}
+              </button>
+            </div>
           </>
         )}
         {step !== 2 && errors.length > 0 && (

@@ -6,6 +6,7 @@ import { cardFinish } from '../../domain/cards';
 import { FINISH_LABELS, type CardFinish } from '../../domain/finishes';
 import { GROUP_ICON } from '../../components/typeTheme';
 import frameUrl from '../../assets/card-frame.webp';
+import { anecdoteFor } from '../../data/anecdotes';
 import { discoveryLine, type CardView } from './cardView';
 import { GROUP_SINGULAR, groupStyle, habitatIcon } from './cardTheme';
 
@@ -34,7 +35,7 @@ export const AnimodexCardView = forwardRef<HTMLDivElement, Props>(function Animo
   const place = discoveryLine(view);
   const first = unlocked ? view.firstObservation : undefined;
   const reference = !photoUrl ? species.media[0] : undefined;
-  const description = shortDescription(species.description?.text);
+  const anecdote = anecdoteFor(species);
 
   return (
     <div ref={ref} className={`ax-card-host ${className}`}>
@@ -102,12 +103,7 @@ export const AnimodexCardView = forwardRef<HTMLDivElement, Props>(function Animo
 
           <div className="ax-card__fact">
             <div className="ax-card__fact-title">Le savais-tu ?</div>
-            <p>{description ?? 'Observe cet animal pour en apprendre plus sur lui.'}</p>
-            {description && (
-              <small>
-                {species.description!.source}, {species.description!.license}
-              </small>
-            )}
+            <p>{anecdote}</p>
           </div>
 
           <div className="ax-card__bottom">
@@ -152,11 +148,4 @@ export function Paw({ color, size, glow = false }: { color: string; size?: numbe
       </g>
     </svg>
   );
-}
-
-/** Première phrase du résumé (≤ 120 caractères), pour rester lisible sur la carte. */
-function shortDescription(text: string | undefined): string | undefined {
-  if (!text) return undefined;
-  const first = text.split(/(?<=[.!?])\s/)[0];
-  return first.length <= 120 ? first : `${first.slice(0, 117).trimEnd()}…`;
 }

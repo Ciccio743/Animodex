@@ -4,6 +4,7 @@ import { AnimodexCardView } from './AnimodexCardView';
 import { buildCardView, discoveryLine } from './cardView';
 import { HERON, LYNX, sp } from '../../test/inatFixtures';
 import { ABILITY_MAP } from '../../data/abilities';
+import { anecdoteFor } from '../../data/anecdotes';
 import { generateCard } from '../../domain/cards';
 import { computeProgress } from '../../domain/progress';
 import { makeObservation } from '../../test/fixtures';
@@ -18,7 +19,7 @@ describe('carte Animodex (composant)', () => {
     expect(screen.getByText(/Photo de référence : Photographe Test 501 · CC BY-NC · iNaturalist/)).toBeInTheDocument();
     expect(screen.queryByText(/Première découverte/)).not.toBeInTheDocument();
     expect(screen.getByText('AX-900001')).toBeInTheDocument();
-    expect(screen.getByText(/Wikipédia/)).toBeInTheDocument();
+    expect(screen.getByText(anecdoteFor(heron))).toBeInTheDocument();
   });
 
   it('sans photo libre : remplacement explicite, sans image inventée', () => {

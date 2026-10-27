@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from 'react';
-import { Link, useParams, useSearchParams } from 'react-router';
-import { BookOpen, Download, Plus, Printer, Sparkles } from 'lucide-react';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router';
+import { BookOpen, ChevronLeft, ChevronRight, Download, Plus, Printer, Sparkles } from 'lucide-react';
 import { PageHeader } from '../../components/PageHeader';
 import { Notice } from '../../components/Notice';
 import { useData, usePhotoUrl } from '../../hooks/useData';
@@ -19,7 +19,20 @@ export function CardPage() {
   const isNew = params.get('nouvelle') === '1';
   const asFinish = (v: string | null) => ((CARD_FINISHES as readonly string[]).includes(v ?? '') ? (v as CardFinish) : undefined);
   const drawn = asFinish(params.get('finition'));
-  const { progress, cardsBySpecies, observations, speciesById, status } = useData();
+  const { progress, cardsBySpecies, observations, speciesById, catalog, status } = useData();
+  const navigate = useNavigate();
+  const [slide, setSlide] = useState<'next' | 'prev'>();
+  const touch = useRef<{ x: number; y: number }>(undefined);
+
+  // Toutes les cartes possédées, dans l'ordre de la collection (numéro), une par finition trouvée.
+  const deck = useMemo(
+    () =>
+      catalog
+        .filter((s) => progress.discoveredSpeciesIds.has(s.id) && cardsBySpecies.has(s.id))
+        .sort((a, b) => a.cardNumber.localeCompare(b.cardNumber))
+        .flatMap((s) => cardVersions(cardsBySpecies.get(s.id)!).map((finish) => ({ speciesId: s.id, finish }))),
+    [catalog, progress, cardsBySpecies],
+  );
   const species = speciesById.get(speciesId);
   const cardRef = useRef<HTMLDivElement>(null);
   const [exporting, setExporting] = useState(false);
@@ -38,6 +51,15 @@ export function CardPage() {
   const versions = cardVersions(view.card);
   const asked = asFinish(params.get('version')) ?? drawn;
   const shown = asked && versions.includes(asked) ? asked : versions[0];
+
+  const position = deck.findIndex((d) => d.speciesId === species.id && d.finish === shown);
+  function go(step: 1 | -1) {
+    if (position < 0 || deck.length < 2) return;
+    const d = deck[(position + step + deck.length) % deck.length];
+    setSlide(step > 0 ? 'next' : 'prev');
+    void navigate(`/cartes/${d.speciesId}?version=${d.finish}`, { replace: true });
+  }
+  const swipeable = view.unlocked && position >= 0 && deck.length > 1;
 
   async function onExport() {
     if (!cardRef.current) return;
@@ -68,7 +90,19 @@ export function CardPage() {
       {!view.unlocked && (
         <Notice>Cette espèce n’est pas encore dans ta collection. Enregistre une observation confirmée pour débloquer sa carte.</Notice>
       )}
-      <div className={`print-only-card mx-auto w-full max-w-[380px] px-2 ${isNew || drawn ? 'ax-reveal' : ''}`}>
+      <div
+        key={`${species.id}-${shown}`}
+        className={`print-only-card mx-auto w-full max-w-[380px] px-2 ${isNew || drawn ? 'ax-reveal' : slide ? `ax-slide-${slide}` : ''}`}
+        onTouchStart={(e) => (touch.current = { x: e.touches[0].clientX, y: e.touches[0].clientY })}
+        onTouchEnd={(e) => {
+          const start = touch.current;
+          touch.current = undefined;
+          if (!start || !swipeable) return;
+          const dx = e.changedTouches[0].clientX - start.x;
+          const dy = e.changedTouches[0].clientY - start.y;
+          if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) go(dx < 0 ? 1 : -1);
+        }}
+      >
         <CardFlip finish={shown}>
           <AnimodexCardView
             ref={cardRef}
@@ -78,7 +112,22 @@ export function CardPage() {
           />
         </CardFlip>
       </div>
-      <p className="no-print -mt-1 text-center text-xs text-white/60">Penche la carte du doigt · touche-la pour voir le dos</p>
+      {swipeable && (
+        <div className="no-print -mt-1 flex items-center justify-center gap-4">
+          <button type="button" className="grid size-10 place-items-center rounded-full bg-white/10 text-white ring-1 ring-white/15 active:scale-95" onClick={() => go(-1)} aria-label="Carte précédente">
+            <ChevronLeft size={20} aria-hidden="true" />
+          </button>
+          <span className="min-w-16 text-center text-sm font-semibold text-white/80" data-testid="deck-position">
+            {position + 1} / {deck.length}
+          </span>
+          <button type="button" className="grid size-10 place-items-center rounded-full bg-white/10 text-white ring-1 ring-white/15 active:scale-95" onClick={() => go(1)} aria-label="Carte suivante">
+            <ChevronRight size={20} aria-hidden="true" />
+          </button>
+        </div>
+      )}
+      <p className="no-print -mt-1 text-center text-xs text-white/60">
+        {swipeable ? 'Glisse pour voir tes autres cartes · touche-la pour voir le dos' : 'Penche la carte du doigt · touche-la pour voir le dos'}
+      </p>
 
       {view.unlocked && (
         <p className="text-center text-sm text-white/70">

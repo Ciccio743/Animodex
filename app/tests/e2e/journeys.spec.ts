@@ -39,7 +39,7 @@ test('ouverture, navigation et catalogue vierge', async ({ page }) => {
   await expect(page.getByTestId('home-progress')).toHaveText('0 espèce découverte');
   for (const [label, heading] of [
     ['Découvrir', 'Partir à la découverte'],
-    ['Carte', 'Carte des découvertes'],
+    ['Map', 'Carte des découvertes'],
     ['Collection', 'Collection'],
     ['Profil', 'Profil'],
     ['Accueil', 'Animodex'],
@@ -82,7 +82,7 @@ test('parcours complet : zone, fiche, observation, carte, rechargement', async (
   await page.reload();
   await expect(page.getByTestId('stat-species')).toHaveText('1');
   await expect(page.getByTestId('stat-observations')).toHaveText('2');
-  await nav(page).getByRole('link', { name: 'Carte' }).click();
+  await nav(page).getByRole('link', { name: 'Map' }).click();
   await expect(page.getByTestId('observations-map')).toBeVisible();
   // Aucune position n'a été placée : rien d'inventé sur la carte, les trouvailles sont listées « Sans position ».
   await expect(page.locator('.ax-pin')).toHaveCount(0);
@@ -110,7 +110,7 @@ test('carte : la position GPS est placée d’office (exacte), puis la trouvaill
   await page.getByRole('button', { name: 'Enregistrer l’observation' }).click();
   await expect(page.getByText('Nouvelle carte débloquée !')).toBeVisible();
 
-  await nav(page).getByRole('link', { name: 'Carte' }).click();
+  await nav(page).getByRole('link', { name: 'Map' }).click();
   const map = page.getByTestId('observations-map');
   await expect(map.locator('.ax-pin')).toHaveCount(1);
   await expect(map).toContainText('OpenStreetMap');
@@ -144,7 +144,7 @@ test('rencontre passée : date choisie, lieu approximatif posé sur la carte, pa
   await page.getByRole('button', { name: 'Enregistrer l’observation' }).click();
   await expect(page.getByText('Nouvelle carte débloquée !')).toBeVisible();
 
-  await nav(page).getByRole('link', { name: 'Carte' }).click();
+  await nav(page).getByRole('link', { name: 'Map' }).click();
   const map = page.getByTestId('observations-map');
   await expect(map.locator('.ax-pin')).toHaveCount(1);
   await map.locator('.ax-pin').click();

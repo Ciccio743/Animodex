@@ -8,7 +8,7 @@ import { AddSheet } from './AddSheet';
 const TABS = [
   { to: '/', label: 'Accueil', icon: House, end: true },
   { to: '/decouvrir', label: 'Découvrir', icon: Compass },
-  { to: '/carte', label: 'Carte', icon: Map },
+  { to: '/carte', label: 'Map', icon: Map },
   { to: '/collection', label: 'Collection', icon: LayoutGrid },
   { to: '/profil', label: 'Profil', icon: User },
 ];
@@ -70,9 +70,10 @@ export function Layout() {
         aria-label="Navigation principale"
         className="no-print fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-night-950/90 pb-[var(--safe-bottom)] backdrop-blur-lg"
       >
-        <ul className="mx-auto grid max-w-xl grid-cols-[repeat(2,1fr)_auto_repeat(3,1fr)] items-end">
-          {TABS.slice(0, 2).map(renderTab)}
-          <li className="flex justify-center px-1">
+        {/* Deux moitiés de même largeur : le bouton + reste pile au centre de l'écran. */}
+        <div className="mx-auto grid max-w-xl grid-cols-[1fr_auto_1fr] items-end">
+          <ul className="grid grid-cols-2">{TABS.slice(0, 2).map(renderTab)}</ul>
+          <div className="flex justify-center px-1">
             <button
               type="button"
               onClick={() => setAdding(true)}
@@ -82,9 +83,9 @@ export function Layout() {
             >
               <Plus size={34} strokeWidth={2.8} aria-hidden="true" />
             </button>
-          </li>
-          {TABS.slice(2).map(renderTab)}
-        </ul>
+          </div>
+          <ul className="grid grid-cols-3">{TABS.slice(2).map(renderTab)}</ul>
+        </div>
       </nav>
       {adding && <AddSheet onClose={() => setAdding(false)} />}
     </div>

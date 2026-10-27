@@ -18,7 +18,7 @@ test('index.html autonome : fonctionne dans un sous-dossier, routes dans le #', 
   await page.route('https://pages.example/animodex/**', (route) => route.fulfill({ status: 200, contentType: 'text/html', body: html }));
   await page.goto('https://pages.example/animodex/');
   await expect(page.getByRole('heading', { level: 1, name: 'Animodex', exact: true })).toBeVisible();
-  await page.getByRole('navigation', { name: 'Navigation principale' }).getByRole('link', { name: 'Carte' }).click();
+  await page.getByRole('navigation', { name: 'Navigation principale' }).getByRole('link', { name: 'Map' }).click();
   await expect(page).toHaveURL('https://pages.example/animodex/#/carte');
   await page.reload();
   await expect(page.getByRole('heading', { name: 'Carte des découvertes' })).toBeVisible();

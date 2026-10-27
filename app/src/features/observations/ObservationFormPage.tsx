@@ -171,6 +171,28 @@ export function ObservationFormPage() {
     <form onSubmit={(e) => void onSubmit(e)} className="flex flex-col gap-5 animate-fade-up" noValidate>
       <PageHeader back title={editing ? 'Modifier l’observation' : 'Nouvelle observation'} subtitle="Une rencontre réelle avec un animal, à une date donnée." />
 
+      <fieldset className="flex flex-col gap-2">
+        <legend className="mb-2 font-semibold">Quel animal ?</legend>
+        <SpeciesPicker value={knownSpecies} onChange={setSpeciesId} />
+        {alreadyKnown && <p className="text-sm text-moss-300">Tu connais déjà cette espèce : cette rencontre enrichira son historique.</p>}
+      </fieldset>
+
+      {knownSpecies && (
+        <fieldset className="flex flex-col gap-2">
+          <legend className="mb-2 font-semibold">Identification</legend>
+          {STATUSES.map((s) => (
+            <label key={s.value} className={`flex cursor-pointer items-start gap-3 rounded-2xl p-3 ring-1 ${status === s.value ? 'bg-white/10 ring-moss-300/60' : 'ring-white/10'}`}>
+              <input type="radio" name="status" className="mt-1 h-5 w-5 accent-moss-500" checked={status === s.value} onChange={() => setStatus(s.value)} />
+              <span>
+                <span className="block font-medium">{STATUS_LABELS[s.value]}</span>
+                <span className="block text-xs text-white/60">{s.help}</span>
+              </span>
+            </label>
+          ))}
+        </fieldset>
+      )}
+
+
       {!editing && (
         <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Quand ?">
           {(
@@ -224,26 +246,6 @@ export function ObservationFormPage() {
         <p className="text-xs text-white/50">Les photos sont réduites et gardées uniquement sur cet appareil. Leur position GPS éventuelle est retirée.</p>
       </fieldset>
 
-      <fieldset className="flex flex-col gap-2">
-        <legend className="mb-2 font-semibold">Quel animal ?</legend>
-        <SpeciesPicker value={knownSpecies} onChange={setSpeciesId} />
-        {alreadyKnown && <p className="text-sm text-moss-300">Tu connais déjà cette espèce : cette rencontre enrichira son historique.</p>}
-      </fieldset>
-
-      {knownSpecies && (
-        <fieldset className="flex flex-col gap-2">
-          <legend className="mb-2 font-semibold">Identification</legend>
-          {STATUSES.map((s) => (
-            <label key={s.value} className={`flex cursor-pointer items-start gap-3 rounded-2xl p-3 ring-1 ${status === s.value ? 'bg-white/10 ring-moss-300/60' : 'ring-white/10'}`}>
-              <input type="radio" name="status" className="mt-1 h-5 w-5 accent-moss-500" checked={status === s.value} onChange={() => setStatus(s.value)} />
-              <span>
-                <span className="block font-medium">{STATUS_LABELS[s.value]}</span>
-                <span className="block text-xs text-white/60">{s.help}</span>
-              </span>
-            </label>
-          ))}
-        </fieldset>
-      )}
       {!knownSpecies && <Notice>Sans espèce choisie, l’observation sera enregistrée « À identifier ». Tu pourras la compléter plus tard.</Notice>}
 
       {!past && dateField}

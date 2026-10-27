@@ -124,22 +124,25 @@ body {
   font-weight: 600;
 }
 
-.field {
-  width: 100%;
-  min-height: 48px;
-  padding: 0.6rem 0.9rem;
-  border-radius: 0.9rem;
-  background: rgb(0 0 0 / 0.3);
-  border: 1px solid rgb(255 255 255 / 0.16);
-  color: inherit;
-  font-size: 1rem;
-}
-.field:focus {
-  outline: none;
-  border-color: var(--color-moss-400);
-}
-select.field {
-  appearance: none;
+/* En couche « components » : les utilitaires (ex. pl-10 pour une icône) peuvent l’ajuster. */
+@layer components {
+  .field {
+    width: 100%;
+    min-height: 48px;
+    padding: 0.6rem 0.9rem;
+    border-radius: 0.9rem;
+    background: rgb(0 0 0 / 0.3);
+    border: 1px solid rgb(255 255 255 / 0.16);
+    color: inherit;
+    font-size: 1rem;
+  }
+  .field:focus {
+    outline: none;
+    border-color: var(--color-moss-400);
+  }
+  select.field {
+    appearance: none;
+  }
 }
 
 .no-scrollbar::-webkit-scrollbar {

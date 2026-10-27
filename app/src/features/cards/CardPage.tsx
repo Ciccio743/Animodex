@@ -1,6 +1,10 @@
 import { useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router';
-import { BookOpen, ChevronLeft, ChevronRight, Download, Plus, Printer, Sparkles } from 'lucide-react';
+import { BookOpen, ChevronLeft, ChevronRight, Download, Pencil, Plus, Printer, Sparkles, Trash2 } from 'lucide-react';
+import { ConfirmDialog } from '../../components/ConfirmDialog';
+import { deleteObservation } from '../../services/observationService';
+import { formatDate } from '../../utils/format';
+import { STATUS_LABELS } from '../../domain/labels';
 import { PageHeader } from '../../components/PageHeader';
 import { Notice } from '../../components/Notice';
 import { useData, usePhotoUrl } from '../../hooks/useData';
@@ -19,7 +23,8 @@ export function CardPage() {
   const isNew = params.get('nouvelle') === '1';
   const asFinish = (v: string | null) => ((CARD_FINISHES as readonly string[]).includes(v ?? '') ? (v as CardFinish) : undefined);
   const drawn = asFinish(params.get('finition'));
-  const { progress, cardsBySpecies, observations, speciesById, catalog, status } = useData();
+  const { db, progress, cardsBySpecies, observations, speciesById, catalog, status } = useData();
+  const [toDelete, setToDelete] = useState<string>();
   const navigate = useNavigate();
   const [slide, setSlide] = useState<'next' | 'prev'>();
   const touch = useRef<{ x: number; y: number }>(undefined);
@@ -60,6 +65,16 @@ export function CardPage() {
     void navigate(`/cartes/${d.speciesId}?version=${d.finish}`, { replace: true });
   }
   const swipeable = view.unlocked && position >= 0 && deck.length > 1;
+
+  // Tes rencontres avec cet animal, pour corriger ou supprimer une erreur.
+  const mine = observations.filter((o) => o.speciesId === species.id);
+  async function onDelete() {
+    if (!db || !toDelete) return;
+    const last = mine.length <= 1;
+    await deleteObservation(db, toDelete);
+    setToDelete(undefined);
+    if (last) void navigate('/collection', { replace: true });
+  }
 
   async function onExport() {
     if (!cardRef.current) return;
@@ -168,6 +183,45 @@ export function CardPage() {
         </Link>
       </div>
       {exportError && <p className="text-sm text-red-300" role="alert">Export impossible : {exportError}</p>}
+
+      {mine.length > 0 && (
+        <section className="no-print flex flex-col gap-2" aria-labelledby="mine-title">
+          <h2 id="mine-title" className="font-semibold">
+            Tes rencontres ({mine.length})
+          </h2>
+          <ul className="flex flex-col gap-2">
+            {mine.map((o) => (
+              <li key={o.id} className="flex items-center gap-2 rounded-2xl bg-white/5 p-2 pl-3 text-sm">
+                <Link to={`/observations/${o.id}`} className="min-w-0 flex-1">
+                  <span className="block font-medium">{formatDate(o.observedAt)}</span>
+                  <span className="block truncate text-xs text-white/60">
+                    {STATUS_LABELS[o.identificationStatus]}
+                    {o.locationLabel ? ` · ${o.locationLabel}` : ''}
+                  </span>
+                </Link>
+                <Link to={`/observations/${o.id}/modifier`} className="grid size-10 shrink-0 place-items-center rounded-full bg-white/10" aria-label={`Modifier la rencontre du ${formatDate(o.observedAt)}`}>
+                  <Pencil size={17} aria-hidden="true" />
+                </Link>
+                <button type="button" className="grid size-10 shrink-0 place-items-center rounded-full bg-red-500/15 text-red-200" onClick={() => setToDelete(o.id)} aria-label={`Supprimer la rencontre du ${formatDate(o.observedAt)}`}>
+                  <Trash2 size={17} aria-hidden="true" />
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+      <ConfirmDialog
+        open={!!toDelete}
+        title="Supprimer cette rencontre ?"
+        confirmLabel="Supprimer"
+        danger
+        onCancel={() => setToDelete(undefined)}
+        onConfirm={() => void onDelete()}
+      >
+        {mine.length <= 1
+          ? 'C’est ta seule rencontre avec cet animal : sa carte sera retirée de ta collection.'
+          : 'Cette rencontre et ses photos seront effacées. Ta carte reste dans ta collection.'}
+      </ConfirmDialog>
     </div>
   );
 }

@@ -346,3 +346,14 @@ test('hors ligne : collection et liste de zone en cache restent consultables', a
   await expect(page.getByTestId('area-source')).toContainText('cache');
   await context.setOffline(false);
 });
+
+test('carte : modifier ou supprimer une rencontre depuis la carte', async ({ page }) => {
+  await recordHeron(page, false);
+  await expect(page.getByRole('heading', { name: 'Tes rencontres (1)' })).toBeVisible();
+  await expect(page.getByRole('link', { name: /Modifier la rencontre/ })).toBeVisible();
+  await page.getByRole('button', { name: /Supprimer la rencontre/ }).click();
+  await expect(page.getByRole('dialog')).toContainText('sa carte sera retirée');
+  await page.getByRole('dialog').getByRole('button', { name: 'Supprimer' }).click();
+  await expect(page.getByRole('heading', { level: 1, name: 'Collection' })).toBeVisible();
+  await expect(page.getByTestId('stat-species')).toHaveText('0');
+});

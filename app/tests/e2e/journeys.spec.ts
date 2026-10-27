@@ -26,7 +26,9 @@ async function recordHeron(page: Page, withPhoto = true) {
   if (withPhoto) {
     await page.getByTestId('photo-input').setInputFiles(PHOTO);
     await expect(page.getByAltText('Photo ajoutée')).toBeVisible();
-  }
+    await page.getByRole('button', { name: 'Continuer' }).click();
+  } else await page.getByRole('button', { name: 'Passer' }).click();
+  await page.getByText('Ajouter des détails (facultatif)').click();
   await page.getByLabel('Nom du lieu (facultatif)').fill('Étang du parc');
   await page.getByRole('button', { name: 'Enregistrer l’observation' }).click();
   await expect(page.getByText('Nouvelle carte débloquée !')).toBeVisible();
@@ -75,7 +77,8 @@ test('parcours complet : zone, fiche, observation, carte, rechargement', async (
 
   // Revoir une espèce connue n'ajoute pas d'espèce.
   await page.goto('/observations/nouvelle?species=inat-900001');
-  await expect(page.getByText(/Tu connais déjà cette espèce/)).toBeVisible();
+  await expect(page.getByText(/Déjà dans ta collection/)).toBeVisible();
+  await page.getByRole('button', { name: 'Passer' }).click();
   await page.getByRole('button', { name: 'Enregistrer l’observation' }).click();
   // Fiche de l'observation, ou la carte si le tirage a donné une nouvelle sorte de carte.
   await expect(page.getByRole('heading', { level: 1, name: /^(Héron cendré|Carte AX-900001)$/ })).toBeVisible();
@@ -103,6 +106,10 @@ test('carte : la position GPS est placée d’office (exacte), puis la trouvaill
   await chooseLyon(page);
   await page.getByRole('link', { name: /Héron cendré/ }).click();
   await page.getByRole('link', { name: 'J’ai vu cet animal' }).click();
+  await page.getByRole('button', { name: 'Passer' }).click();
+  // La position GPS est prise toute seule ; « Changer » ouvre la carte.
+  await expect(page.getByTestId('where-summary')).toContainText('Ta position actuelle');
+  await page.getByRole('button', { name: 'Changer' }).nth(1).click();
   await expect(page.getByTestId('pick-map')).toBeVisible();
   await expect(page.getByTestId('picked-position')).toHaveText('Point placé : 45.76404, 4.83566');
   await expect(page.getByTestId('gps-following')).toBeVisible();
@@ -129,10 +136,11 @@ test('rencontre passée : date choisie, lieu approximatif posé sur la carte, pa
   await page.goto('/');
   await page.getByRole('button', { name: 'Ajouter un animal' }).click();
   await page.getByRole('dialog', { name: 'Ajouter un animal' }).getByRole('button', { name: /Animal déjà rencontré/ }).click();
-  await expect(page.getByRole('radio', { name: 'Rencontre passée' })).toHaveAttribute('aria-checked', 'true');
+  await expect(page.getByTestId('past-mode')).toBeVisible();
   await page.getByPlaceholder('Tape un nom : merle, héron, Ardea…').fill('merle');
   await page.getByRole('option', { name: /Merle noir/ }).click();
   await expect(page.getByTestId('selected-species')).toHaveText('Merle noir');
+  await page.getByRole('button', { name: 'Passer' }).click();
   await page.getByTestId('observed-at').fill('2025-07-14T10:30');
   // Pas de position GPS placée d'office : on cherche le lieu puis on touche la carte.
   await expect(page.getByTestId('pick-map')).toBeVisible();
@@ -184,14 +192,15 @@ test('bouton « + » : photo existante, ou saisie manuelle', async ({ page }) =>
   await sheet.getByTestId('add-library-input').setInputFiles(PHOTO);
   await expect(page).toHaveURL(/\/observations\/nouvelle$/);
   await expect(page.getByAltText('Photo ajoutée')).toHaveCount(1);
+  await expect(page.getByRole('heading', { level: 1, name: 'Quel animal as-tu vu ?' })).toBeVisible();
 
   await page.getByRole('button', { name: 'Ajouter un animal' }).click();
   await page.getByRole('dialog', { name: 'Ajouter un animal' }).getByRole('button', { name: /Noter à la main/ }).click();
-  await expect(page.getByRole('heading', { level: 1, name: 'Nouvelle observation' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Quel animal as-tu vu ?' })).toBeVisible();
   await expect(page.getByAltText('Photo ajoutée')).toHaveCount(0);
   await page.getByRole('button', { name: 'Ajouter un animal' }).click();
   await page.getByRole('dialog', { name: 'Ajouter un animal' }).getByRole('button', { name: /Animal déjà rencontré/ }).click();
-  await expect(page.getByRole('radio', { name: 'Rencontre passée' })).toHaveAttribute('aria-checked', 'true');
+  await expect(page.getByTestId('past-mode')).toBeVisible();
 });
 
 test.describe(() => {
@@ -213,6 +222,8 @@ test.describe(() => {
 test('carte : chercher un lieu puis toucher la carte pour placer le point', async ({ page }) => {
   await page.goto('/observations/nouvelle?taxon=900001');
   await expect(page.getByTestId('selected-species')).toHaveText('Héron cendré');
+  await page.getByRole('button', { name: 'Passer' }).click();
+  await page.getByRole('button', { name: 'Placer' }).click();
   await page.getByPlaceholder('Chercher un lieu : parc, lac, ville…').fill('tete d or');
   await page.getByRole('button', { name: 'Chercher ce lieu' }).click();
   await page.getByRole('button', { name: /Parc de la Tête d’Or/ }).click();
@@ -230,7 +241,9 @@ test('recherche d’espèce en ligne depuis le formulaire', async ({ page }) => 
   await page.getByPlaceholder('Tape un nom : merle, héron, Ardea…').fill('merle');
   await page.getByRole('option', { name: /Merle noir/ }).click();
   await expect(page.getByTestId('selected-species')).toHaveText('Merle noir');
-  await page.getByRole('radio', { name: /Identification incertaine/ }).check();
+  await page.getByRole('button', { name: 'Passer' }).click();
+  await page.getByText('Ajouter des détails (facultatif)').click();
+  await page.getByLabel('Je ne suis pas sûr de l’espèce').check();
   await page.getByRole('button', { name: 'Enregistrer l’observation' }).click();
   await expect(page.getByText('Cette observation ne débloque pas encore de carte')).toBeVisible();
   await page.goto('/collection');
@@ -240,6 +253,8 @@ test('recherche d’espèce en ligne depuis le formulaire', async ({ page }) => 
 
 test('observation à identifier puis suppression', async ({ page }) => {
   await page.goto('/observations/nouvelle');
+  await page.getByRole('button', { name: 'Je ne sais pas encore' }).click();
+  await page.getByRole('button', { name: 'Passer' }).click();
   await page.getByRole('button', { name: 'Enregistrer l’observation' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Animal à identifier' })).toBeVisible();
   await page.getByRole('button', { name: 'Supprimer' }).click();

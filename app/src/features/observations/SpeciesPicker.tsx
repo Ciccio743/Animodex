@@ -90,8 +90,7 @@ export function SpeciesPicker({ value, onChange }: { value?: string; onChange: (
         <input type="search" className="field pl-10" placeholder="Tape un nom : merle, héron, Ardea…" value={query} onChange={(e) => setQuery(e.target.value)} aria-describedby="picker-help" />
       </label>
       <p id="picker-help" className="mt-1 text-xs text-white/50">
-        L’identification automatique par photo n’est pas encore configurée : choisis l’espèce toi-même, ou laisse « À identifier ».
-        {!online && ' Hors ligne : recherche limitée à ton catalogue local.'}
+        {online ? 'Écris le début de son nom.' : 'Hors ligne : recherche limitée à ton catalogue local.'}
       </p>
       {query.trim() && (
         <ul className="mt-2 flex flex-col gap-1" role="listbox" aria-label="Espèces correspondantes">

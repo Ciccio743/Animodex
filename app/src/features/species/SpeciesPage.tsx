@@ -14,6 +14,7 @@ import { buildCardView } from '../cards/cardView';
 import { formatDate } from '../../utils/format';
 import { NotFoundPage } from '../../app/NotFoundPage';
 import { displayName, type Observation } from '../../domain/models';
+import { speciesHabitats } from '../../domain/habitats';
 
 const NA = 'Donnée non disponible';
 
@@ -67,6 +68,7 @@ export function SpeciesPage() {
   const view = buildCardView(s, cardsBySpecies.get(s.id), progress);
   const mine = observations.filter((o) => o.speciesId === s.id);
   const rule = findTaxonRule(s);
+  const hab = speciesHabitats(s);
   const name = displayName(s);
   const cs = s.conservationStatus;
 
@@ -152,7 +154,7 @@ export function SpeciesPage() {
         <Row label="Poids" value={s.physicalCharacteristics?.mass?.value} />
         <Row label="Longévité" value={s.longevity?.value} />
         <Row label="Régime alimentaire" value={s.diet} />
-        <Row label="Habitat" value={s.habitatText ?? (s.habitats.length ? s.habitats.map((h) => HABITAT_LABELS[h]).join(', ') : undefined)} />
+        <Row label="Habitat" value={s.habitatText ?? (hab.habitats.length ? hab.habitats.map((h) => HABITAT_LABELS[h]).join(', ') + (hab.estimated ? ' (estimé d’après sa famille)' : '') : undefined)} />
         <Row label="Répartition" value={s.distribution} />
         <Row label="Activité" value={s.activity && ACTIVITY_LABELS[s.activity]} />
         <Row label="Comportement" value={s.behavior} />

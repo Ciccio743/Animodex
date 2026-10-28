@@ -27,3 +27,20 @@ export async function searchPlace(query: string, signal?: AbortSignal): Promise<
   const res = await fetchJson(url, resultSchema, { source: 'OpenStreetMap', minIntervalMs: 1100, signal });
   return res.map((r) => ({ label: r.display_name, lat: r.lat, lng: r.lon }));
 }
+
+const reverseSchema = z.object({
+  address: z
+    .object({ state: z.string().optional(), region: z.string().optional(), county: z.string().optional(), country: z.string().optional() })
+    .optional(),
+});
+
+/**
+ * Région administrative d'un point (ex. « Auvergne-Rhône-Alpes »), à partir de coordonnées
+ * arrondies par l'appelant. Hors de France, l'équivalent (État, province) ou à défaut le pays.
+ */
+export async function reverseRegion(lat: number, lng: number, signal?: AbortSignal): Promise<string | undefined> {
+  const url = `${NOMINATIM_API}/reverse?format=jsonv2&zoom=5&accept-language=fr&lat=${lat}&lon=${lng}`;
+  const res = await fetchJson(url, reverseSchema, { source: 'OpenStreetMap', minIntervalMs: 1100, signal });
+  const a = res.address;
+  return a?.state ?? a?.region ?? a?.county ?? a?.country;
+}

@@ -98,7 +98,9 @@ export async function mockSources(page: Page, opts: ApiOptions = {}) {
   // Fond de carte et recherche de lieu OpenStreetMap, simulés aussi (tuile = image de test).
   await page.context().route('https://tile.openstreetmap.org/**', (route) => route.fulfill({ status: 200, contentType: 'image/png', body: IMAGE }));
   await page.context().route('https://nominatim.openstreetmap.org/**', (route) =>
-    json(route, [{ display_name: 'Parc de la Tête d’Or, Lyon, France', lat: '45.7772', lon: '4.8545' }]),
+    route.request().url().includes('/reverse')
+      ? json(route, { address: { state: 'Auvergne-Rhône-Alpes', country: 'France' } })
+      : json(route, [{ display_name: 'Parc de la Tête d’Or, Lyon, France', lat: '45.7772', lon: '4.8545' }]),
   );
   return calls;
 }

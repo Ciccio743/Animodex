@@ -7,6 +7,7 @@ import { FINISH_LABELS, type CardFinish } from '../../domain/finishes';
 import { GROUP_ICON } from '../../components/typeTheme';
 import frameUrl from '../../assets/card-frame.webp';
 import { anecdoteFor } from '../../data/anecdotes';
+import { speciesHabitats } from '../../domain/habitats';
 import { discoveryLine, type CardView } from './cardView';
 import { GROUP_SINGULAR, groupStyle, habitatIcon } from './cardTheme';
 
@@ -30,7 +31,7 @@ export const AnimodexCardView = forwardRef<HTMLDivElement, Props>(function Animo
   const paws = RARITY_STARS[card.rarity];
   const finish = shownFinish ?? cardFinish(card);
   const name = displayName(species);
-  const habitat = species.habitats[0];
+  const habitat = speciesHabitats(species).habitats[0];
   const HabitatIcon = habitat ? habitatIcon(habitat) : undefined;
   const place = discoveryLine(view);
   const first = unlocked ? view.firstObservation : undefined;

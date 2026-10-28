@@ -128,6 +128,14 @@ test('carte : la position GPS est placée d’office (exacte), puis la trouvaill
   await expect(page.getByTestId('map-selection')).toContainText('Position exacte');
   await page.reload();
   await expect(page.getByTestId('observations-map').locator('.ax-pin')).toHaveCount(1);
+
+  // Collections par région (d'après le lieu) et par habitat (estimé d'après la famille).
+  await nav(page).getByRole('link', { name: 'Collection' }).click();
+  await page.getByText('Par région').click();
+  await expect(page.getByTestId('by-region')).toContainText('Auvergne-Rhône-Alpes');
+  await expect(page.getByTestId('by-region')).toContainText('1 espèce');
+  await page.getByText('Par habitat').click();
+  await expect(page.getByText('Zones humides')).toBeVisible();
 });
 
 test('rencontre passée : date choisie, lieu approximatif posé sur la carte, pas de GPS', async ({ page, context }) => {

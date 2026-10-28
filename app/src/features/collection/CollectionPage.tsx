@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router';
 import { Compass, LayoutGrid, List, Lock } from 'lucide-react';
 import { PageHeader } from '../../components/PageHeader';
@@ -18,12 +18,15 @@ import { buildCardView, type CardView } from '../cards/cardView';
 import { MiniCard } from '../cards/MiniCard';
 import { cardVersions } from '../../domain/cards';
 import { formatShortDate } from '../../utils/format';
+import { HABITAT_LABELS } from '../../domain/labels';
+import { speciesHabitats } from '../../domain/habitats';
+import { regionOf, speciesByRegionKey } from '../../services/regionService';
 
 type Sort = 'number' | 'name' | 'recent' | 'rarity';
 const PAGE = 24;
 
 export function CollectionPage() {
-  const { progress, cardsBySpecies, catalog } = useData();
+  const { db, progress, cardsBySpecies, catalog, observations } = useData();
   const [view, setView] = useState<'grid' | 'list'>('grid');
   const [filter, setFilter] = useState<SpeciesFilter>({});
   const [showLocked, setShowLocked] = useState(true);
@@ -53,6 +56,40 @@ export function CollectionPage() {
   const byGroup = useMemo(() => breakdownBy(catalog, discovered, (s) => [s.group]), [catalog, discovered]);
   const byRarity = useMemo(() => breakdownBy(catalog, discovered, (s) => [assignRarity(s)]), [catalog, discovered]);
   const byType = useMemo(() => breakdownBy(catalog, discovered, (s) => [assignTypes(s).primary]), [catalog, discovered]);
+  const byHabitat = useMemo(() => breakdownBy(catalog, discovered, (s) => speciesHabitats(s).habitats.slice(0, 1)), [catalog, discovered]);
+
+  // Régions : d'après la position (arrondie à ~10 km) de tes observations confirmées, gardée en cache.
+  const regionCells = useMemo(() => speciesByRegionKey(observations), [observations]);
+  const [regionNames, setRegionNames] = useState<Record<string, string | null>>({});
+  const [regionError, setRegionError] = useState(false);
+  useEffect(() => {
+    if (!db) return;
+    const ctrl = new AbortController();
+    void (async () => {
+      for (const key of regionCells.keys()) {
+        if (ctrl.signal.aborted) return;
+        try {
+          const name = await regionOf(db, key, ctrl.signal);
+          setRegionNames((r) => (key in r ? r : { ...r, [key]: name ?? null }));
+        } catch {
+          if (!ctrl.signal.aborted) setRegionError(true);
+        }
+      }
+    })();
+    return () => ctrl.abort();
+  }, [db, regionCells]);
+  const byRegion = useMemo(() => {
+    const m = new Map<string, Set<string>>();
+    for (const [key, ids] of regionCells) {
+      const name = regionNames[key];
+      if (!name) continue;
+      const set = m.get(name) ?? new Set<string>();
+      ids.forEach((id) => set.add(id));
+      m.set(name, set);
+    }
+    return [...m.entries()].map(([name, ids]) => ({ name, count: ids.size })).sort((a, b) => b.count - a.count);
+  }, [regionCells, regionNames]);
+  const regionsPending = [...regionCells.keys()].some((k) => !(k in regionNames));
 
   return (
     <div className="flex flex-col gap-4 animate-fade-up">
@@ -151,9 +188,32 @@ export function CollectionPage() {
           items={RARITIES.map((r) => byRarity.find((b) => b.key === r)).filter((b) => !!b).map((b) => ({ ...b, label: RARITY_LABELS[b.key], extra: <RarityStars rarity={b.key} size={10} /> }))}
         />
         <Breakdown title="Par type" items={byType.map((b) => ({ ...b, label: TYPE_LABELS[b.key] }))} />
-        <p className="text-xs text-white/50">
-          Les collections par habitat demandent une source de données d’habitat (pas encore branchée) ; celles par région s’appuieront sur les coordonnées des observations (étape Carte).
-        </p>
+        <Breakdown title="Par habitat" items={byHabitat.map((b) => ({ ...b, label: HABITAT_LABELS[b.key] }))} />
+        <details className="surface p-4" data-testid="by-region">
+          <summary className="cursor-pointer font-semibold">Par région</summary>
+          {byRegion.length > 0 && (
+            <ul className="mt-3 flex flex-col gap-2">
+              {byRegion.map((r) => (
+                <li key={r.name} className="flex items-center justify-between text-sm">
+                  <span>{r.name}</span>
+                  <span className="text-white/60">
+                    {r.count} espèce{r.count > 1 ? 's' : ''}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+          <p className="mt-3 text-xs text-white/50">
+            {regionCells.size === 0
+              ? 'Tes régions apparaîtront ici dès qu’une observation confirmée aura un lieu.'
+              : regionsPending
+                ? regionError
+                  ? 'Connexion nécessaire pour trouver certaines régions.'
+                  : 'Recherche des régions…'
+                : 'D’après le lieu de tes observations (OpenStreetMap).'}
+          </p>
+        </details>
+        <p className="text-xs text-white/50">L’habitat est estimé d’après la famille de chaque animal.</p>
       </section>
     </div>
   );

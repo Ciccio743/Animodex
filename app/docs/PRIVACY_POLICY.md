@@ -13,7 +13,7 @@ La position sert à afficher où tu es sur la carte et à placer tes trouvailles
 ## Services externes consultés
 Pour afficher la carte et les informations sur les animaux, l'application contacte des services publics gratuits, qui reçoivent comme tout site web l'adresse IP de l'appareil :
 - OpenFreeMap et OpenStreetMap (fond de carte de la zone affichée) ;
-- Nominatim / OpenStreetMap (texte d'un lieu que tu recherches) ;
+- Nominatim / OpenStreetMap (texte d'un lieu que tu recherches ; et, pour la collection « Par région », la position de tes observations arrondie à environ 10 km, une seule fois par zone) ;
 - iNaturalist et GBIF (nom d'animal recherché, zone arrondie à environ 1 km quand tu explores les animaux autour de toi).
 Aucune photo ni observation ne leur est envoyée.
 

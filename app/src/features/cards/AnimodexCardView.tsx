@@ -1,7 +1,7 @@
-import { forwardRef } from 'react';
+import { forwardRef, useState, type ReactNode } from 'react';
 import { Binoculars, CalendarDays } from 'lucide-react';
 import { HABITAT_LABELS, RARITY_LABELS, RARITY_STARS } from '../../domain/labels';
-import { displayName } from '../../domain/models';
+import { displayName, type SpeciesMedia } from '../../domain/models';
 import { cardFinish } from '../../domain/cards';
 import { FINISH_LABELS, type CardFinish } from '../../domain/finishes';
 import { GROUP_ICON } from '../../components/typeTheme';
@@ -62,7 +62,7 @@ export const AnimodexCardView = forwardRef<HTMLDivElement, Props>(function Animo
             {photoUrl ? (
               <img src={photoUrl} alt={`Photo d’observation : ${name}`} />
             ) : reference ? (
-              <img src={reference.url} alt={`Photo de référence : ${name}`} crossOrigin="anonymous" referrerPolicy="no-referrer" />
+              <RefPhoto key={species.id} media={species.media} name={name} placeholder={<GroupIcon aria-hidden="true" />} />
             ) : (
               <div className="ax-card__placeholder">
                 <GroupIcon aria-hidden="true" />
@@ -71,11 +71,6 @@ export const AnimodexCardView = forwardRef<HTMLDivElement, Props>(function Animo
             )}
             <div className="ax-card__tint" aria-hidden="true" />
             <div className="ax-card__extra" aria-hidden="true" />
-            {reference && (
-              <div className="ax-card__credit">
-                Photo de référence : {reference.creator ?? 'auteur iNaturalist'} · {reference.license} · {reference.source}
-              </div>
-            )}
           </div>
 
           <div className="ax-card__pills">
@@ -147,5 +142,42 @@ export function Paw({ color, size, glow = false }: { color: string; size?: numbe
         <circle cx="18.5" cy="10" r="2.3" />
       </g>
     </svg>
+  );
+}
+
+/**
+ * Photo de référence avec secours : certaines photos refusent le mode « CORS » (utile à l'export PNG)
+ * ou ne répondent pas. On essaie alors sans CORS, puis la petite taille, puis les autres photos de
+ * l'espèce ; en dernier recours, l'icône du groupe plutôt qu'une image cassée.
+ */
+function RefPhoto({ media, name, placeholder }: { media: SpeciesMedia[]; name: string; placeholder: ReactNode }) {
+  const tries = media.flatMap((m) => [
+    { m, src: m.url, cors: true },
+    { m, src: m.url, cors: false },
+    ...(m.thumbnailUrl ? [{ m, src: m.thumbnailUrl, cors: false }] : []),
+  ]);
+  const [i, setI] = useState(0);
+  const t = tries[i];
+  if (!t)
+    return (
+      <div className="ax-card__placeholder">
+        {placeholder}
+        <span>Photo indisponible</span>
+      </div>
+    );
+  return (
+    <>
+      <img
+        key={`${t.src}-${t.cors}`}
+        src={t.src}
+        alt={`Photo de référence : ${name}`}
+        crossOrigin={t.cors ? 'anonymous' : undefined}
+        referrerPolicy="no-referrer"
+        onError={() => setI((n) => n + 1)}
+      />
+      <div className="ax-card__credit">
+        Photo de référence : {t.m.creator ?? 'auteur iNaturalist'} · {t.m.license} · {t.m.source}
+      </div>
+    </>
   );
 }

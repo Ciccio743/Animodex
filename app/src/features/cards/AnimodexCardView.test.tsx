@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { AnimodexCardView } from './AnimodexCardView';
 import { buildCardView, discoveryLine } from './cardView';
 import { HERON, LYNX, sp } from '../../test/inatFixtures';
@@ -60,5 +60,17 @@ describe('carte Animodex (composant)', () => {
   it('carte stockée mais plus aucune observation confirmée : redevient un aperçu', () => {
     const view = buildCardView(heron, generateCard(heron, ABILITY_MAP), computeProgress([], [heron]));
     expect(view.unlocked).toBe(false);
+  });
+
+  it('photo de référence qui ne charge pas : essais de secours, puis icône du groupe', () => {
+    const view = buildCardView(heron, undefined, computeProgress([], [heron]));
+    render(<AnimodexCardView view={view} />);
+    const first = screen.getByRole('img', { name: /Photo de référence/ });
+    expect(first).toHaveAttribute('crossorigin', 'anonymous');
+    fireEvent.error(first);
+    const second = screen.getByRole('img', { name: /Photo de référence/ });
+    expect(second).not.toHaveAttribute('crossorigin');
+    for (let i = 0; i < 20 && screen.queryByRole('img', { name: /Photo de référence/ }); i++) fireEvent.error(screen.getByRole('img', { name: /Photo de référence/ }));
+    expect(screen.getByText('Photo indisponible')).toBeInTheDocument();
   });
 });
